@@ -1,0 +1,46 @@
+# منع الوصول المباشر إلى ملفات PHP الحساسة
+<Files "*.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# استثناء الملفات الرئيسية
+<Files "index.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "events.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "event.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "about.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "contact.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# إعدادات الأمان الأساسية
+Options -Indexes
+ServerSignature Off
+
+# إعادة كتابة URLs
+RewriteEngine On
+
+# إعادة كتابة event.php?id=X إلى event/X/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^event/([0-9]+)/?$ event.php?id=$1 [L,QSA]
+
+# إعادة كتابة events/category/ إلى events.php?category=
+RewriteRule ^events/category/([^/]+)/?$ events.php?category=$1 [L,QSA]
