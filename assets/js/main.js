@@ -1,403 +1,760 @@
-// تهيئة التطبيق عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTheme();
-    initializeScrollToTop();
-    loadFeaturedEvents();
-    loadLatestEvents();
-    initializeBookingSystem();
-    initializeContactForm();
-    initializeSearchFilter();
+// ===== تهيئة التطبيق عند تحميل الصفحة =====
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("🚀 بدء تهيئة تطبيق دليل الفعاليات...");
+
+  // تهيئة جميع الأنظمة
+  initializeDarkMode();
+  initializeScrollToTop();
+  initializeEventSystem();
+  initializeContactForm();
+  initializeSearchFilter();
+  initializeAnimations();
+
+  console.log("✅ تم تهيئة التطبيق بنجاح");
 });
 
-// ==================== نظام Dark Mode ====================
-function initializeTheme() {
-    const themeToggle = document.getElementById('themeToggle');
-    if (!themeToggle) return;
-    
-    const currentTheme = localStorage.getItem('theme') || 'light';
+// ===== نظام الوضع الليلي (Dark Mode) =====
+function initializeDarkMode() {
+  console.log("🌙 تهيئة نظام الوضع الليلي...");
+
+  const themeToggle = document.getElementById("themeToggle");
+  const themeIcon = document.getElementById("themeIcon");
+
+  // التحقق من وجود العناصر
+  if (!themeToggle || !themeIcon) {
+    console.warn("⚠️ عناصر الوضع الليلي غير موجودة");
+    return;
+  }
+
+  // الحصول على الوضع الحالي من localStorage أو استخدام الوضع النهاري افتراضيًا
+  let currentTheme = localStorage.getItem("theme");
+  if (!currentTheme) {
+    // إذا لم يكن هناك تفضيل محفوظ، التحقق من تفضيلات النظام
+    currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+    localStorage.setItem("theme", currentTheme);
+  }
+
+  // تطبيق الوضع الحالي
+  applyTheme(currentTheme);
+
+  // إضافة مستمع حدث للنقر على الزر
+  themeToggle.addEventListener("click", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log("🖱️ تم النقر على زر الوضع الليلي");
+
+    // تبديل الوضع
+    currentTheme = currentTheme === "light" ? "dark" : "light";
+    console.log("🔄 الانتقال إلى الوضع:", currentTheme);
+
+    // تطبيق التغييرات
     applyTheme(currentTheme);
-    
-    themeToggle.addEventListener('click', function() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem("theme", currentTheme);
+
+    // إشعار بصري
+    showThemeNotification(currentTheme);
+  });
+
+  // استماع لتغير تفضيلات النظام
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", function (e) {
+      if (!localStorage.getItem("theme")) {
+        const newTheme = e.matches ? "dark" : "light";
         applyTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
+      }
     });
+
+  console.log("✅ نظام الوضع الليلي جاهز - الوضع الحالي:", currentTheme);
 }
 
 function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.innerHTML = theme === 'light' ? '🌙' : '☀️';
-        themeToggle.title = theme === 'light' ? 'تفعيل الوضع الليلي' : 'تفعيل الوضع النهاري';
-    }
+  // تطبيق السمة على عنصر HTML
+  document.documentElement.setAttribute("data-theme", theme);
+
+  // تحديث أيقونة الزر
+  const themeIcon = document.getElementById("themeIcon");
+  if (themeIcon) {
+    themeIcon.textContent = theme === "light" ? "🌙" : "☀️";
+    themeIcon.title =
+      theme === "light" ? "تفعيل الوضع الليلي" : "تفعيل الوضع النهاري";
+  }
+
+  // تحديث meta theme-color للمتصفحات التي تدعمها
+  updateMetaThemeColor(theme);
 }
 
-// ==================== زر العودة للأعلى ====================
+function updateMetaThemeColor(theme) {
+  let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (!metaThemeColor) {
+    metaThemeColor = document.createElement("meta");
+    metaThemeColor.name = "theme-color";
+    document.head.appendChild(metaThemeColor);
+  }
+  metaThemeColor.content = theme === "dark" ? "#121212" : "#007bff";
+}
+
+function showThemeNotification(theme) {
+  // إنشاء إشعار بصري صغير
+  const notification = document.createElement("div");
+  notification.className = `theme-notification alert alert-${
+    theme === "dark" ? "info" : "warning"
+  }`;
+  notification.innerHTML = `
+        <span>تم تفعيل الوضع ${theme === "dark" ? "الليلي" : "النهاري"}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+  notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 1060;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease;
+    `;
+
+  document.body.appendChild(notification);
+
+  // إزالة الإشعار بعد 3 ثوان
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.style.animation = "slideOutRight 0.3s ease";
+      setTimeout(() => notification.remove(), 300);
+    }
+  }, 3000);
+}
+
+// ===== نظام العودة للأعلى =====
 function initializeScrollToTop() {
-    const scrollButton = document.getElementById('scrollToTop');
-    if (!scrollButton) return;
-    
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            scrollButton.classList.add('show');
-        } else {
-            scrollButton.classList.remove('show');
-        }
-    });
-    
-    scrollButton.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-}
+  console.log("⬆️ تهيئة زر العودة للأعلى...");
 
-// ==================== تحميل الفعاليات ====================
-async function loadFeaturedEvents() {
-    try {
-        const response = await fetch('api_get_events.php?limit=5');
-        const events = await response.json();
-        displayFeaturedEvents(events);
-    } catch (error) {
-        console.error('Error loading featured events:', error);
+  const scrollButton = document.getElementById("scrollToTop");
+  if (!scrollButton) {
+    console.warn("⚠️ زر العودة للأعلى غير موجود");
+    return;
+  }
+
+  // التحكم في ظهور الزر عند التمرير
+  window.addEventListener("scroll", function () {
+    if (window.pageYOffset > 300) {
+      scrollButton.classList.add("show");
+    } else {
+      scrollButton.classList.remove("show");
     }
-}
+  });
 
-async function loadLatestEvents() {
-    try {
-        const response = await fetch('api_get_events.php');
-        const events = await response.json();
-        displayLatestEvents(events);
-    } catch (error) {
-        console.error('Error loading latest events:', error);
-    }
-}
-
-function displayFeaturedEvents(events) {
-    const sliderContent = document.getElementById('sliderContent');
-    if (!sliderContent || !events.length) return;
-    
-    let slidesHTML = '';
-    events.forEach((event, index) => {
-        const activeClass = index === 0 ? 'active' : '';
-        slidesHTML += `
-            <div class="carousel-item ${activeClass}">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <img src="${event.image}" class="d-block w-100 rounded" alt="${event.title}" style="height: 300px; object-fit: cover;">
-                    </div>
-                    <div class="col-md-6">
-                        <h3>${event.title}</h3>
-                        <p>${event.description.substring(0, 150)}...</p>
-                        <p><strong>📅 ${formatDate(event.event_date)}</strong></p>
-                        <p><strong>📍 ${event.location}</strong></p>
-                        <a href="event.php?id=${event.id}" class="btn btn-light">عرض التفاصيل</a>
-                    </div>
-                </div>
-            </div>
-        `;
+  // إضافة مستمع حدث للنقر
+  scrollButton.addEventListener("click", function () {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
-    
-    sliderContent.innerHTML = slidesHTML;
+  });
+
+  console.log("✅ زر العودة للأعلى جاهز");
 }
 
-function displayLatestEvents(events) {
-    const eventsGrid = document.getElementById('eventsGrid');
-    if (!eventsGrid) return;
-    
-    if (!events.length) {
-        eventsGrid.innerHTML = '<div class="col-12"><p class="text-center">لا توجد فعاليات متاحة حالياً.</p></div>';
-        return;
-    }
-    
-    let eventsHTML = '';
-    events.slice(0, 6).forEach(event => {
-        eventsHTML += `
-            <div class="col-md-4 mb-4 fade-in">
-                <div class="card h-100">
-                    <img src="${event.image}" class="card-img-top" alt="${event.title}">
-                    <div class="card-body">
-                        <h5 class="card-title">${event.title}</h5>
-                        <p class="card-text">${event.description.substring(0, 100)}...</p>
-                        <p class="text-muted">
-                            <small>📅 ${formatDate(event.event_date)}</small><br>
-                            <small>📍 ${event.location}</small><br>
-                            <small>🏷️ ${event.category}</small>
-                        </p>
-                    </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="event.php?id=${event.id}" class="btn btn-primary me-2">التفاصيل</a>
-                        <button class="btn btn-success book-event" 
-                                data-event-id="${event.id}" 
-                                data-event-title="${event.title}">
-                            احجز الآن
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    eventsGrid.innerHTML = eventsHTML;
-    initializeBookingButtons(); // إعادة تهيئة أزرار الحجز للأحداث الجديدة
+// ===== نظام الفعاليات والحجوزات =====
+function initializeEventSystem() {
+  console.log("🎪 تهيئة نظام الفعاليات...");
+
+  initializeBookingSystem();
+  initializeEventActions();
+  loadEventsData();
 }
 
-// ==================== نظام الحجز ====================
 function initializeBookingSystem() {
-    initializeBookingButtons();
-    initializeBookingModal();
-}
+  // تهيئة أزرار الحجز
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("book-event")) {
+      const eventId = e.target.getAttribute("data-event-id");
+      const eventTitle = e.target.getAttribute("data-event-title");
 
-function initializeBookingButtons() {
-    const bookingButtons = document.querySelectorAll('.book-event');
-    bookingButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const eventId = this.getAttribute('data-event-id');
-            const eventTitle = this.getAttribute('data-event-title');
-            openBookingModal(eventId, eventTitle);
-        });
-    });
-}
-
-function initializeBookingModal() {
-    const bookingForm = document.getElementById('bookingForm');
-    if (bookingForm) {
-        bookingForm.addEventListener('submit', handleBookingSubmit);
+      if (eventId && eventTitle) {
+        openBookingModal(eventId, eventTitle);
+      }
     }
+  });
+
+  // تهيئة نموذج الحجز
+  const bookingForm = document.getElementById("bookingForm");
+  if (bookingForm) {
+    bookingForm.addEventListener("submit", handleBookingSubmit);
+  }
+}
+
+function initializeEventActions() {
+  // تهيئة أزرار المشاركة
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("share-event")) {
+      shareEvent(e.target);
+    }
+
+    if (e.target.classList.contains("calendar-event")) {
+      addToCalendar(e.target);
+    }
+  });
+}
+
+function loadEventsData() {
+  // محاكاة تحميل البيانات (في التطبيق الحقيقي ستكون من API)
+  console.log("📥 جاري تحميل بيانات الفعاليات...");
+
+  // يمكن إضافة AJAX call هنا لتحميل البيانات الحقيقية
+  setTimeout(() => {
+    console.log("✅ تم تحميل بيانات الفعاليات");
+  }, 500);
 }
 
 function openBookingModal(eventId, eventTitle) {
-    const modalElement = document.getElementById('bookingModal');
-    if (!modalElement) return;
-    
-    document.getElementById('bookingEventTitle').textContent = eventTitle;
-    document.getElementById('eventId').value = eventId;
-    
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+  console.log("🎫 فتح نموذج حجز الفعالية:", eventTitle);
+
+  const modalElement = document.getElementById("bookingModal");
+  if (!modalElement) {
+    console.error("❌ نموذج الحجز غير موجود");
+    return;
+  }
+
+  // تعيين بيانات الفعالية
+  document.getElementById("bookingEventTitle").textContent = eventTitle;
+  document.getElementById("eventId").value = eventId;
+
+  // فتح المودال
+  const modal = new bootstrap.Modal(modalElement);
+  modal.show();
 }
 
 async function handleBookingSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const submitButton = this.querySelector('button[type="submit"]');
-    const originalText = submitButton.textContent;
-    
-    // تعطيل الزر أثناء المعالجة
-    submitButton.disabled = true;
-    submitButton.textContent = 'جاري الحجز...';
-    
-    try {
-        const response = await fetch('book_event.php', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert(result.message, 'success');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
-            modal.hide();
-            this.reset();
-        } else {
-            showAlert(result.message, 'danger');
-        }
-    } catch (error) {
-        showAlert('حدث خطأ في الاتصال بالخادم', 'danger');
-    } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-    }
+  e.preventDefault();
+
+  console.log("📨 معالجة طلب الحجز...");
+
+  const formData = new FormData(this);
+  const submitButton = this.querySelector('button[type="submit"]');
+  const originalText = submitButton.innerHTML;
+
+  // تعطيل الزر أثناء المعالجة
+  submitButton.disabled = true;
+  submitButton.innerHTML =
+    '<span class="spinner-border spinner-border-sm" role="status"></span> جاري الحجز...';
+
+  try {
+    // محاكاة إرسال البيانات (في التطبيق الحقيقي ستكون fetch إلى server)
+    await simulateBookingRequest(formData);
+
+    // إظهار رسالة نجاح
+    showAlert("تم الحجز بنجاح! سنتواصل معك قريباً.", "success");
+
+    // إغلاق المودال
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("bookingModal")
+    );
+    modal.hide();
+
+    // إعادة تعيين النموذج
+    this.reset();
+  } catch (error) {
+    console.error("❌ خطأ في الحجز:", error);
+    showAlert("حدث خطأ أثناء الحجز. يرجى المحاولة مرة أخرى.", "danger");
+  } finally {
+    // إعادة تمكين الزر
+    submitButton.disabled = false;
+    submitButton.innerHTML = originalText;
+  }
 }
 
-// ==================== نموذج الاتصال ====================
-function initializeContactForm() {
-    const contactForm = document.getElementById('contactForm');
-    if (!contactForm) return;
-    
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        if (!validateContactForm()) {
-            return;
-        }
-        
-        // إرسال النموذج
-        this.submit();
-    });
+function simulateBookingRequest(formData) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // محاكاة نجاح أو فشل عشوائي للاختبار
+      if (Math.random() > 0.1) {
+        // 90% نجاح
+        resolve({ success: true, message: "تم الحجز بنجاح" });
+      } else {
+        reject(new Error("فشل في الاتصال بالخادم"));
+      }
+    }, 1500);
+  });
 }
 
-function validateContactForm() {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const message = document.getElementById('message').value.trim();
-    
-    // إعادة تعيين الصفوف غير صالحة
-    document.querySelectorAll('.is-invalid').forEach(el => {
-        el.classList.remove('is-invalid');
-    });
-    
-    let isValid = true;
-    
-    if (!name) {
-        document.getElementById('name').classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    if (!email || !validateEmail(email)) {
-        document.getElementById('email').classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    if (!message) {
-        document.getElementById('message').classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    return isValid;
+function shareEvent(button) {
+  const eventId = button.getAttribute("data-event-id");
+  const eventTitle = button.getAttribute("data-event-title");
+  const eventUrl = `${window.location.origin}/event.php?id=${eventId}`;
+
+  if (navigator.share) {
+    navigator
+      .share({
+        title: eventTitle,
+        text: "تفضل بمشاهدة هذه الفعالية المميزة",
+        url: eventUrl,
+      })
+      .then(() => {
+        console.log("✅ تمت المشاركة بنجاح");
+      })
+      .catch((error) => {
+        console.log("❌ تم إلغاء المشاركة:", error);
+      });
+  } else {
+    // نسخ الرابط إلى الحافظة
+    navigator.clipboard
+      .writeText(eventUrl)
+      .then(() => {
+        showAlert("تم نسخ رابط الفعالية إلى الحافظة", "success");
+      })
+      .catch(() => {
+        // Fallback للنصوص القديمة
+        prompt("انسخ الرابط التالي:", eventUrl);
+      });
+  }
 }
 
-// ==================== نظام البحث والتصفية ====================
+function addToCalendar(button) {
+  const eventDate = button.getAttribute("data-event-date");
+  const eventTitle = button.getAttribute("data-event-title");
+  const eventLocation = button.getAttribute("data-event-location");
+
+  // إنشاء رابط تقويم Google
+  const startDate = new Date(eventDate).toISOString().replace(/-|:|\.\d+/g, "");
+  const endDate = new Date(new Date(eventDate).getTime() + 2 * 60 * 60 * 1000)
+    .toISOString()
+    .replace(/-|:|\.\d+/g, "");
+
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&dates=${startDate}/${endDate}&text=${encodeURIComponent(
+    eventTitle
+  )}&location=${encodeURIComponent(eventLocation)}`;
+
+  window.open(calendarUrl, "_blank");
+}
+
+// ===== نظام البحث والتصفية =====
 function initializeSearchFilter() {
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', filterEvents);
-    }
-    
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', filterEvents);
-    }
-    
-    if (dateFilter) {
-        dateFilter.addEventListener('change', filterEvents);
-    }
+  console.log("🔍 تهيئة نظام البحث والتصفية...");
+
+  const searchInput = document.getElementById("searchInput");
+  const categoryFilter = document.getElementById("categoryFilter");
+  const dateFilter = document.getElementById("dateFilter");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", debounce(filterEvents, 300));
+  }
+
+  if (categoryFilter) {
+    categoryFilter.addEventListener("change", filterEvents);
+  }
+
+  if (dateFilter) {
+    dateFilter.addEventListener("change", filterEvents);
+  }
+
+  console.log("✅ نظام البحث والتصفية جاهز");
 }
 
 function filterEvents() {
-    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const category = document.getElementById('categoryFilter')?.value || '';
-    const date = document.getElementById('dateFilter')?.value || '';
-    
-    const eventCards = document.querySelectorAll('.event-card');
-    
-    eventCards.forEach(card => {
-        const title = card.querySelector('.card-title').textContent.toLowerCase();
-        const cardCategory = card.getAttribute('data-category');
-        const cardDate = card.getAttribute('data-date').split(' ')[0];
-        
-        const matchesSearch = title.includes(searchTerm);
-        const matchesCategory = !category || cardCategory === category;
-        const matchesDate = !date || cardDate === date;
-        
-        if (matchesSearch && matchesCategory && matchesDate) {
-            card.style.display = 'block';
-            card.classList.add('fade-in');
-        } else {
-            card.style.display = 'none';
+  const searchTerm = (
+    document.getElementById("searchInput")?.value || ""
+  ).toLowerCase();
+  const category = document.getElementById("categoryFilter")?.value || "";
+  const date = document.getElementById("dateFilter")?.value || "";
+
+  const eventCards = document.querySelectorAll(".event-card");
+  let visibleCount = 0;
+
+  eventCards.forEach((card) => {
+    const title =
+      card.querySelector(".card-title")?.textContent.toLowerCase() || "";
+    const description =
+      card.querySelector(".card-text")?.textContent.toLowerCase() || "";
+    const cardCategory = card.getAttribute("data-category") || "";
+    const cardDate = card.getAttribute("data-date")?.split(" ")[0] || "";
+
+    const matchesSearch =
+      title.includes(searchTerm) || description.includes(searchTerm);
+    const matchesCategory = !category || cardCategory === category;
+    const matchesDate = !date || cardDate === date;
+
+    if (matchesSearch && matchesCategory && matchesDate) {
+      card.style.display = "block";
+      card.classList.add("fade-in");
+      visibleCount++;
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  // عرض رسالة إذا لم توجد نتائج
+  showNoResultsMessage(visibleCount === 0);
+}
+
+function showNoResultsMessage(show) {
+  let message = document.getElementById("noResultsMessage");
+
+  if (show && !message) {
+    message = document.createElement("div");
+    message.id = "noResultsMessage";
+    message.className = "col-12 text-center py-5 fade-in";
+    message.innerHTML = `
+            <div class="alert alert-info">
+                <h4>لا توجد نتائج</h4>
+                <p>لم نعثر على فعاليات تطابق معايير البحث الخاصة بك.</p>
+                <button onclick="clearFilters()" class="btn btn-primary">مسح الفلاتر</button>
+            </div>
+        `;
+    document.getElementById("eventsList").appendChild(message);
+  } else if (!show && message) {
+    message.remove();
+  }
+}
+
+function clearFilters() {
+  const searchInput = document.getElementById("searchInput");
+  const categoryFilter = document.getElementById("categoryFilter");
+  const dateFilter = document.getElementById("dateFilter");
+
+  if (searchInput) searchInput.value = "";
+  if (categoryFilter) categoryFilter.value = "";
+  if (dateFilter) dateFilter.value = "";
+
+  filterEvents();
+  showAlert("تم مسح جميع الفلاتر", "info");
+}
+
+// ===== نموذج الاتصال =====
+function initializeContactForm() {
+  console.log("📞 تهيئة نموذج الاتصال...");
+
+  const contactForm = document.getElementById("contactForm");
+  if (!contactForm) return;
+
+  contactForm.addEventListener("submit", function (e) {
+    if (!validateContactForm()) {
+      e.preventDefault();
+    } else {
+      // إظهار حالة التحميل
+      const submitButton = this.querySelector('button[type="submit"]');
+      const originalText = submitButton.innerHTML;
+      submitButton.disabled = true;
+      submitButton.innerHTML =
+        '<span class="spinner-border spinner-border-sm"></span> جاري الإرسال...';
+
+      // إعادة التمكين بعد ثانية (في التطبيق الحقيقي سيكون بعد response)
+      setTimeout(() => {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalText;
+      }, 2000);
+    }
+  });
+
+  console.log("✅ نموذج الاتصال جاهز");
+}
+
+function validateContactForm() {
+  const name = document.getElementById("name")?.value.trim();
+  const email = document.getElementById("email")?.value.trim();
+  const message = document.getElementById("message")?.value.trim();
+
+  // إعادة تعيين الأخطاء
+  document.querySelectorAll(".is-invalid").forEach((el) => {
+    el.classList.remove("is-invalid");
+  });
+
+  let isValid = true;
+
+  if (!name) {
+    document.getElementById("name")?.classList.add("is-invalid");
+    isValid = false;
+  }
+
+  if (!email || !isValidEmail(email)) {
+    document.getElementById("email")?.classList.add("is-invalid");
+    isValid = false;
+  }
+
+  if (!message) {
+    document.getElementById("message")?.classList.add("is-invalid");
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+// ===== نظام الحركات والتحسينات =====
+function initializeAnimations() {
+  console.log("✨ تهيئة الحركات والتحسينات...");
+
+  // إضافة تأثيرات للعناصر عند التمرير
+  const animatedElements = document.querySelectorAll(
+    ".fade-in, .slide-in-left, .slide-in-right"
+  );
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = "1";
+          entry.target.style.transform = "translateY(0) translateX(0)";
+          observer.unobserve(entry.target);
         }
-    });
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  animatedElements.forEach((el) => {
+    el.style.opacity = "0";
+    el.style.transform = "translateY(30px)";
+    if (el.classList.contains("slide-in-left")) {
+      el.style.transform = "translateX(-50px)";
+    } else if (el.classList.contains("slide-in-right")) {
+      el.style.transform = "translateX(50px)";
+    }
+    observer.observe(el);
+  });
+
+  console.log("✅ الحركات والتحسينات جاهزة");
 }
 
-// ==================== وظائف مساعدة ====================
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+// ===== وظائف مساعدة =====
+function isValidEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
 }
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
-function showAlert(message, type) {
-    // إزالة التنبيهات القديمة
-    const oldAlerts = document.querySelectorAll('.custom-alert');
-    oldAlerts.forEach(alert => alert.remove());
-    
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} custom-alert alert-dismissible fade show`;
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '1060';
-    alertDiv.style.minWidth = '300px';
-    alertDiv.innerHTML = `
+function showAlert(message, type = "info") {
+  // إنشاء عنصر التنبيه
+  const alertDiv = document.createElement("div");
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+  alertDiv.style.cssText = `
+        position: fixed;
+        top: 90px;
+        right: 20px;
+        z-index: 1060;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease;
+    `;
+  alertDiv.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
-    document.body.appendChild(alertDiv);
-    
-    // إخفاء التنبيه تلقائياً بعد 5 ثوان
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
+
+  // إضافة التنبيه إلى الصفحة
+  document.body.appendChild(alertDiv);
+
+  // إزالة التنبيه تلقائيًا بعد 5 ثوان
+  setTimeout(() => {
+    if (alertDiv.parentNode) {
+      alertDiv.style.animation = "slideOutRight 0.3s ease";
+      setTimeout(() => alertDiv.remove(), 300);
+    }
+  }, 5000);
 }
 
-// ==================== إدارة حالة التحميل ====================
-function showLoading() {
-    let loadingDiv = document.getElementById('loadingSpinner');
-    if (!loadingDiv) {
-        loadingDiv = document.createElement('div');
-        loadingDiv.id = 'loadingSpinner';
-        loadingDiv.className = 'd-flex justify-content-center align-items-center';
-        loadingDiv.style.position = 'fixed';
-        loadingDiv.style.top = '0';
-        loadingDiv.style.left = '0';
-        loadingDiv.style.width = '100%';
-        loadingDiv.style.height = '100%';
-        loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        loadingDiv.style.zIndex = '9999';
-        loadingDiv.innerHTML = `
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">جاري التحميل...</span>
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ar-SA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+// ===== جعل الوظائف متاحة globally =====
+window.toggleTheme = function () {
+  const currentTheme = localStorage.getItem("theme") || "light";
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  applyTheme(newTheme);
+  localStorage.setItem("theme", newTheme);
+};
+
+window.clearFilters = clearFilters;
+window.openBookingModal = openBookingModal;
+window.shareEvent = shareEvent;
+window.addToCalendar = addToCalendar;
+
+// ===== إضافة أنماط CSS للحركات =====
+const style = document.createElement("style");
+style.textContent = `
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .theme-notification {
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+`;
+document.head.appendChild(style);
+
+console.log("🎉 تم تحميل main.js بنجاح!");
+
+// في دالة initializeEventSystem، أضف تحميل السلايدر
+function initializeEventSystem() {
+  console.log("🎪 تهيئة نظام الفعاليات...");
+
+  initializeBookingSystem();
+  initializeEventActions();
+  loadEventsData();
+  initializeFeaturedEventsCarousel(); // ← إضافة هذه السطر
+}
+
+// دالة تهيئة سلايدر الفعاليات البارزة
+function initializeFeaturedEventsCarousel() {
+  console.log("🔄 تهيئة سلايدر الفعاليات البارزة...");
+
+  const carousel = document.getElementById("featuredEventsCarousel");
+  if (!carousel) {
+    console.warn("⚠️ سلايدر الفعاليات البارزة غير موجود");
+    return;
+  }
+
+  // إضافة تأثيرات تفاعلية
+  const carouselItems = carousel.querySelectorAll(".carousel-item");
+  carouselItems.forEach((item, index) => {
+    // إضافة تأثير عند التمرير
+    item.addEventListener("mouseenter", function () {
+      this.style.transform = "scale(1.02)";
+    });
+
+    item.addEventListener("mouseleave", function () {
+      this.style.transform = "scale(1)";
+    });
+  });
+
+  // التحكم التلقائي في السلايدر
+  let autoSlide = setInterval(() => {
+    const nextButton = carousel.querySelector(".carousel-control-next");
+    if (nextButton) {
+      nextButton.click();
+    }
+  }, 5000); // التبديل كل 5 ثواني
+
+  // إيقاف التبديل التلقائي عند التوقف على السلايدر
+  carousel.addEventListener("mouseenter", () => {
+    clearInterval(autoSlide);
+  });
+
+  carousel.addEventListener("mouseleave", () => {
+    autoSlide = setInterval(() => {
+      const nextButton = carousel.querySelector(".carousel-control-next");
+      if (nextButton) {
+        nextButton.click();
+      }
+    }, 5000);
+  });
+
+  console.log("✅ سلايدر الفعاليات البارزة جاهز");
+}
+
+// دالة لتحميل الفعاليات البارزة عبر AJAX (اختياري)
+function loadFeaturedEventsViaAjax() {
+  fetch("api/get_featured_events.php")
+    .then((response) => response.json())
+    .then((events) => {
+      displayFeaturedEvents(events);
+    })
+    .catch((error) => {
+      console.error("❌ خطأ في تحميل الفعاليات البارزة:", error);
+    });
+}
+
+// دالة لعرض الفعاليات البارزة (للاستخدام مع AJAX)
+function displayFeaturedEvents(events) {
+  const carouselInner = document.querySelector(
+    "#featuredEventsCarousel .carousel-inner"
+  );
+  const carouselIndicators = document.querySelector(
+    "#featuredEventsCarousel .carousel-indicators"
+  );
+
+  if (!carouselInner || !events.length) return;
+
+  // مسح المحتوى الحالي
+  carouselInner.innerHTML = "";
+  carouselIndicators.innerHTML = "";
+
+  // إضافة الشرائح الجديدة
+  events.forEach((event, index) => {
+    const isActive = index === 0 ? "active" : "";
+
+    // إضافة indicator
+    if (carouselIndicators) {
+      const indicator = document.createElement("button");
+      indicator.type = "button";
+      indicator.dataset.bsTarget = "#featuredEventsCarousel";
+      indicator.dataset.bsSlideTo = index;
+      indicator.className = isActive ? "active" : "";
+      indicator.setAttribute("aria-label", `Slide ${index + 1}`);
+      carouselIndicators.appendChild(indicator);
+    }
+
+    // إضافة slide
+    const slide = document.createElement("div");
+    slide.className = `carousel-item ${isActive}`;
+    slide.innerHTML = `
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <img src="${event.image || "assets/img/default-event.jpg"}" 
+                         class="d-block w-100 rounded-3" 
+                         alt="${event.title}"
+                         style="height: 400px; object-fit: cover;">
+                </div>
+                <div class="col-md-6">
+                    <div class="carousel-content p-4">
+                        <h3 class="text-primary">${event.title}</h3>
+                        <p class="lead">${event.description.substring(
+                          0,
+                          150
+                        )}...</p>
+                        <div class="event-info mb-3">
+                            <p class="mb-1"><strong>📅 التاريخ:</strong> ${
+                              event.event_date
+                            }</p>
+                            <p class="mb-1"><strong>📍 المكان:</strong> ${
+                              event.location
+                            }</p>
+                            <p class="mb-1"><strong>🏷️ التصنيف:</strong> ${
+                              event.category
+                            }</p>
+                        </div>
+                        <div class="carousel-buttons">
+                            <a href="event.php?id=${
+                              event.id
+                            }" class="btn btn-primary me-2">عرض التفاصيل</a>
+                            <button class="btn btn-success book-event" 
+                                    data-event-id="${event.id}" 
+                                    data-event-title="${event.title}">
+                                احجز الآن
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
-        document.body.appendChild(loadingDiv);
-    }
+    carouselInner.appendChild(slide);
+  });
+
+  // إعادة تهيئة السلايدر
+  initializeFeaturedEventsCarousel();
 }
-
-function hideLoading() {
-    const loadingDiv = document.getElementById('loadingSpinner');
-    if (loadingDiv) {
-        loadingDiv.remove();
-    }
-}
-
-// ==================== تحسينات UX ====================
-// إضافة تأثيرات عند التمرير
-window.addEventListener('scroll', function() {
-    const elements = document.querySelectorAll('.fade-in');
-    elements.forEach(element => {
-        const position = element.getBoundingClientRect();
-        if (position.top < window.innerHeight - 100) {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }
-    });
-});
-
-// تهيئة العناصر المتحركة
-document.querySelectorAll('.fade-in').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-});
-
-console.log('✅ System initialized successfully');
