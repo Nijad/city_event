@@ -1,46 +1,47 @@
-# منع الوصول المباشر إلى ملفات PHP الحساسة
-<Files "*.php">
-    Order Allow,Deny
-    Deny from all
-</Files>
+# .htaccess في المجلد الرئيسي
+RewriteEngine On
 
-# استثناء الملفات الرئيسية
+# السماح بالوصول إلى ملفات PHP في مجلد admin
+RewriteRule ^admin/ - [L]
+
+# منع الوصول المباشر إلى ملفات PHP الحساسة (باستثناء admin)
+<FilesMatch "\.(php)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# استثناء الملفات الرئيسية بشكل صريح (اختياري)
 <Files "index.php">
-    Order Allow,Deny
-    Allow from all
+    Require all granted
 </Files>
 
 <Files "events.php">
-    Order Allow,Deny
-    Allow from all
+    Require all granted
 </Files>
 
 <Files "event.php">
-    Order Allow,Deny
-    Allow from all
+    Require all granted
 </Files>
 
 <Files "about.php">
-    Order Allow,Deny
-    Allow from all
+    Require all granted
 </Files>
 
 <Files "contact.php">
-    Order Allow,Deny
-    Allow from all
+    Require all granted
 </Files>
 
-# إعدادات الأمان الأساسية
+# إعدادات الأمان
 Options -Indexes
 ServerSignature Off
 
 # إعادة كتابة URLs
-RewriteEngine On
-
-# إعادة كتابة event.php?id=X إلى event/X/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^event/([0-9]+)/?$ event.php?id=$1 [L,QSA]
-
-# إعادة كتابة events/category/ إلى events.php?category=
 RewriteRule ^events/category/([^/]+)/?$ events.php?category=$1 [L,QSA]

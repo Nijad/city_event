@@ -1,6 +1,7 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
 session_start();
-
+}
 $host = getenv('DB_HOST') ?: 'localhost:3306';
 $dbname = getenv('DB_NAME') ?: 'city_events';
 $username = getenv('DB_USER') ?: 'city_events_user';
