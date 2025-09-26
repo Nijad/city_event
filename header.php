@@ -29,6 +29,7 @@
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="info.php">nijad_203834</a></li>
                 <li class="nav-item"><a class="nav-link" href="index.php">الرئيسية</a></li>
                 <li class="nav-item"><a class="nav-link" href="events.php">الفعاليات</a></li>
                 <li class="nav-item"><a class="nav-link" href="about.php">عن الدليل</a></li>

@@ -1,4 +1,5 @@
 <?php include 'db.php'; ?>
+<?php include 'functions/images.php'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -41,10 +42,16 @@
                             <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
                                 <div class="row align-items-center">
                                     <div class="col-md-6">
-                                        <img src="<?= $event['image'] ?: 'assets/img/default-event.jpg' ?>" 
-                                             class="d-block w-100 rounded-3" 
-                                             alt="<?= htmlspecialchars($event['title']) ?>"
-                                             style="height: 400px; object-fit: cover;">
+                                        <!-- <img src="<?= $event['image'] ?: 'assets/img/default-event.jpg' ?>" 
+                                            class="d-block w-100 rounded-3" 
+                                            alt="<?= htmlspecialchars($event['title']) ?>"
+                                            style="height: 400px; object-fit: cover;"> -->
+
+                                            <img src="<?= getEventImage($event['image']) ?>" 
+                                                class="card-img-top" 
+                                                alt="<?= $event['title'] ?>"
+                                                style="height: 400px; object-fit: cover;"
+                                                onerror="this.src='assets/img/default-event.jpg'">
                                     </div>
                                     <div class="col-md-6">
                                         <div class="carousel-content p-4">

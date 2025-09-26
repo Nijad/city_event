@@ -24,25 +24,18 @@
                 <section class="mb-5">
                     <h2>فريق العمل</h2>
                     <div class="row">
-                        <div class="col-md-4 text-center mb-4">
+                        <div class="col-md-6 text-center mb-6">
                             <div class="team-member">
                                 <img src="assets/img/team1.jpg" class="rounded-circle mb-3" width="150" height="150" alt="فريق العمل">
                                 <h5>د. باسل الخطيب</h5>
                                 <p class="text-muted">المشرف على المشروع</p>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center mb-4">
+                        <div class="col-md-6 text-center mb-6">
                             <div class="team-member">
                                 <img src="assets/img/team2.jpg" class="rounded-circle mb-3" width="150" height="150" alt="فريق العمل">
                                 <h5>فريق التطوير</h5>
-                                <p class="text-muted">مطورو الويب</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-center mb-4">
-                            <div class="team-member">
-                                <img src="assets/img/team3.jpg" class="rounded-circle mb-3" width="150" height="150" alt="فريق العمل">
-                                <h5>فريق المحتوى</h5>
-                                <p class="text-muted">مديرو المحتوى</p>
+                                <p class="text-muted">نجاد الخوري</p>
                             </div>
                         </div>
                     </div>

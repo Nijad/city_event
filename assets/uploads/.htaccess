@@ -1,0 +1,11 @@
+# منع الوصول المباشر إلى الملفات
+Order deny,allow
+Deny from all
+
+# السماح بالوصول إلى الصور فقط من خلال PHP
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Allow from all
+</FilesMatch>
+
+# منع تنفيذ PHP في هذا المجلد
+php_flag engine off

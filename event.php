@@ -1,5 +1,5 @@
 <?php include 'db.php';
-
+include 'functions/images.php';
 $event_id = $_GET['id'] ?? 0;
 $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ?");
 $stmt->execute([$event_id]);
@@ -41,8 +41,13 @@ $related_events = $related_stmt->fetchAll();
                 <article>
                     <h1 class="mb-3"><?= $event['title'] ?></h1>
                     
-                    <div class="mb-4">
-                        <img src="<?= $event['image'] ?>" class="img-fluid rounded" alt="<?= $event['title'] ?>">
+                    <div class="row mb-4">
+                        <img 
+                            src="<?= getEventImage($event['image']) ?>"
+                            class="col-md-6 img-fluid rounded" 
+                            alt="<?= $event['title'] ?>"
+                            onerror="this.src='assets/img/default-event.jpg'"
+                        />
                     </div>
 
                     <div class="row mb-4">

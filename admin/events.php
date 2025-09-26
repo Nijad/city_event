@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../db.php';
+include '../functions/images.php';
 
 if (!isset($_SESSION['admin'])) {
     header('Location: login.php');
@@ -13,8 +14,9 @@ $events = $pdo->query("SELECT * FROM events ORDER BY event_date DESC")->fetchAll
 // معالجة الحذف
 if (isset($_GET['delete'])) {
     $event_id = $_GET['delete'];
-    
+    deleteEventImage($_GET['image'], true); // حذف صورة الفعالية    
     try {
+
         $stmt = $pdo->prepare("DELETE FROM events WHERE id = ?");
         $stmt->execute([$event_id]);
         
@@ -84,10 +86,11 @@ if (isset($_GET['delete'])) {
                                             <tr>
                                                 <td><?= $event['id'] ?></td>
                                                 <td>
-                                                    <img src="<?= $event['image'] ?>" 
-                                                         alt="<?= $event['title'] ?>" 
-                                                         style="width: 60px; height: 40px; object-fit: cover;" 
-                                                         class="rounded">
+                                                    <img src="<?= getEventImage($event['image'], true) ?>" 
+                                                        alt="<?= $event['title'] ?>" 
+                                                        style="width: 60px; height: 40px; object-fit: cover;" 
+                                                        class="rounded"
+                                                        onerror="this.src='../assets/img/default-event.jpg'" />
                                                 </td>
                                                 <td>
                                                     <strong><?= $event['title'] ?></strong>
@@ -112,15 +115,15 @@ if (isset($_GET['delete'])) {
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
                                                         <a href="../event.php?id=<?= $event['id'] ?>" 
-                                                           class="btn btn-outline-primary" target="_blank">
+                                                            class="btn btn-outline-primary" target="_blank">
                                                             👁️ عرض
                                                         </a>
                                                         <a href="edit_event.php?id=<?= $event['id'] ?>" 
-                                                           class="btn btn-outline-warning">
+                                                            class="btn btn-outline-warning">
                                                             ✏️ تعديل
                                                         </a>
                                                         <button onclick="confirmDelete(<?= $event['id'] ?>)" 
-                                                                class="btn btn-outline-danger">
+                                                            class="btn btn-outline-danger">
                                                             🗑️ حذف
                                                         </button>
                                                     </div>
@@ -147,7 +150,7 @@ if (isset($_GET['delete'])) {
     <script>
     function confirmDelete(eventId) {
         if (confirm('هل أنت متأكد من حذف هذه الفعالية؟ سيتم حذف جميع الحجوزات المرتبطة بها أيضاً.')) {
-            window.location.href = 'events.php?delete=' + eventId;
+            window.location.href = 'events.php?delete=' + eventId + "&image=<?= $event['image'] ?>";
         }
     }
     </script>

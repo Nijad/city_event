@@ -1,4 +1,6 @@
-<?php include 'db.php'; ?>
+<?php include 'db.php';
+include 'functions/images.php';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -52,9 +54,13 @@
             if ($events) {
                 foreach ($events as $event) {
                     echo "
-                    <div class='col-md-4 mb-4 event-card' data-category='{$event['category']}' data-date='{$event['event_date']}'>
-                        <div class='card h-100'>
-                            <img src='{$event['image']}' class='card-img-top' alt='{$event['title']}' style='height: 200px; object-fit: cover;'>
+                        <div class='col-md-4 mb-4 event-card' data-category='{$event['category']}' data-date='{$event['event_date']}'>
+                            <div class='card h-100'>
+                            <img src='" . getEventImage($event['image']) . 
+                            "' class='card-img-top' alt='" . 
+                            htmlspecialchars($event['title'], ENT_QUOTES) . 
+                            "' onerror=\"this.src='assets/img/default-event.jpg'\" style='height: 200px; object-fit: cover;'>
+
                             <div class='card-body'>
                                 <h5 class='card-title'>{$event['title']}</h5>
                                 <p class='card-text'>" . substr($event['description'], 0, 100) . "...</p>
