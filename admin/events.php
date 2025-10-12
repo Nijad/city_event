@@ -19,7 +19,7 @@ if (isset($_GET['delete'])) {
 
         $stmt = $pdo->prepare("DELETE FROM events WHERE id = ?");
         $stmt->execute([$event_id]);
-        
+
         header('Location: events.php?success=تم حذف الفعالية بنجاح');
         exit;
     } catch (PDOException $e) {
@@ -30,6 +30,7 @@ if (isset($_GET['delete'])) {
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,6 +38,7 @@ if (isset($_GET['delete'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -86,9 +88,9 @@ if (isset($_GET['delete'])) {
                                             <tr>
                                                 <td><?= $event['id'] ?></td>
                                                 <td>
-                                                    <img src="<?= getEventImage($event['image'], true) ?>" 
-                                                        alt="<?= $event['title'] ?>" 
-                                                        style="width: 60px; height: 40px; object-fit: cover;" 
+                                                    <img src="<?= getEventImage($event['image'], true) ?>"
+                                                        alt="<?= $event['title'] ?>"
+                                                        style="width: 60px; height: 40px; object-fit: cover;"
                                                         class="rounded"
                                                         onerror="this.src='../assets/img/default-event.jpg'" />
                                                 </td>
@@ -106,24 +108,26 @@ if (isset($_GET['delete'])) {
                                                 <td>
                                                     <?= date('Y-m-d H:i', strtotime($event['event_date'])) ?>
                                                     <br>
-                                                    <small class="text-<?= 
-                                                        strtotime($event['event_date']) > time() ? 'success' : 'danger' 
-                                                    ?>">
+                                                    <small class="text-<?=
+                                                                        strtotime($event['event_date']) > time() ? 'success' : 'danger'
+                                                                        ?>">
                                                         <?= strtotime($event['event_date']) > time() ? 'قادمة' : 'منتهية' ?>
                                                     </small>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="../event.php?id=<?= $event['id'] ?>" 
-                                                            class="btn btn-outline-primary" target="_blank">
+                                                        <a href="../event.php?id=<?= $event['id'] ?>"
+                                                            class="btn btn-outline-primary border-0" target="_blank"
+                                                            style="border-radius: 0 10px 10px 0;">
                                                             👁️ عرض
                                                         </a>
-                                                        <a href="edit_event.php?id=<?= $event['id'] ?>" 
+                                                        <a href="edit_event.php?id=<?= $event['id'] ?>"
                                                             class="btn btn-outline-warning">
                                                             ✏️ تعديل
                                                         </a>
-                                                        <button onclick="confirmDelete(<?= $event['id'] ?>)" 
-                                                            class="btn btn-outline-danger">
+                                                        <button onclick="confirmDelete(<?= $event['id'] ?>)"
+                                                            class="btn btn-outline-danger"
+                                                            style="border-radius: 10px 0 0 10px;">
                                                             🗑️ حذف
                                                         </button>
                                                     </div>
@@ -148,11 +152,12 @@ if (isset($_GET['delete'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    function confirmDelete(eventId) {
-        if (confirm('هل أنت متأكد من حذف هذه الفعالية؟ سيتم حذف جميع الحجوزات المرتبطة بها أيضاً.')) {
-            window.location.href = 'events.php?delete=' + eventId + "&image=<?= $event['image'] ?>";
+        function confirmDelete(eventId) {
+            if (confirm('هل أنت متأكد من حذف هذه الفعالية؟ سيتم حذف جميع الحجوزات المرتبطة بها أيضاً.')) {
+                window.location.href = 'events.php?delete=' + eventId + "&image=<?= $event['image'] ?>";
+            }
         }
-    }
     </script>
 </body>
+
 </html>

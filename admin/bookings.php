@@ -18,11 +18,11 @@ $bookings = $pdo->query("
 // معالجة حذف الحجز
 if (isset($_GET['delete'])) {
     $booking_id = $_GET['delete'];
-    
+
     try {
         $stmt = $pdo->prepare("DELETE FROM bookings WHERE id = ?");
         $stmt->execute([$booking_id]);
-        
+
         header('Location: bookings.php?success=تم حذف الحجز بنجاح');
         exit;
     } catch (PDOException $e) {
@@ -33,6 +33,7 @@ if (isset($_GET['delete'])) {
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,6 +41,7 @@ if (isset($_GET['delete'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -120,12 +122,14 @@ if (isset($_GET['delete'])) {
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <button type="button" class="btn btn-outline-info" 
-                                                                onclick="showBookingDetails(<?= htmlspecialchars(json_encode($booking)) ?>)">
+                                                        <button type="button" class="btn btn-outline-info"
+                                                            onclick="showBookingDetails(<?= htmlspecialchars(json_encode($booking)) ?>)"
+                                                            style="border-radius: 0 10px 10px 0;">
                                                             📋 التفاصيل
                                                         </button>
-                                                        <button onclick="confirmDelete(<?= $booking['id'] ?>)" 
-                                                                class="btn btn-outline-danger">
+                                                        <button onclick="confirmDelete(<?= $booking['id'] ?>)"
+                                                            class="btn btn-outline-danger"
+                                                            style="border-radius: 10px 0 0 10px;">
                                                             🗑️ حذف
                                                         </button>
                                                     </div>
@@ -167,8 +171,8 @@ if (isset($_GET['delete'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    function showBookingDetails(booking) {
-        const content = `
+        function showBookingDetails(booking) {
+            const content = `
             <div class="row">
                 <div class="col-6">
                     <strong>الاسم:</strong>
@@ -218,23 +222,25 @@ if (isset($_GET['delete'])) {
                 </div>
             </div>
         `;
-        
-        document.getElementById('bookingDetailsContent').innerHTML = content;
-        new bootstrap.Modal(document.getElementById('bookingDetailsModal')).show();
-    }
-    
-    function confirmDelete(bookingId) {
-        if (confirm('هل أنت متأكد من حذف هذا الحجز؟')) {
-            window.location.href = 'bookings.php?delete=' + bookingId;
+
+            document.getElementById('bookingDetailsContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('bookingDetailsModal')).show();
         }
-    }
+
+        function confirmDelete(bookingId) {
+            if (confirm('هل أنت متأكد من حذف هذا الحجز؟')) {
+                window.location.href = 'bookings.php?delete=' + bookingId;
+            }
+        }
     </script>
 </body>
+
 </html>
 
 <?php
 // دالة مساعدة لعرض الوقت المنقضي
-function time_elapsed_string($datetime, $full = false) {
+function time_elapsed_string($datetime, $full = false)
+{
     $now = new DateTime;
     $ago = new DateTime($datetime);
     $diff = $now->diff($ago);
@@ -251,7 +257,7 @@ function time_elapsed_string($datetime, $full = false) {
         'i' => 'دقيقة',
         's' => 'ثانية',
     );
-    
+
     foreach ($string as $k => &$v) {
         if ($diff->$k) {
             $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? '' : '');
