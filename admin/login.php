@@ -13,7 +13,7 @@ $error_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
-    
+
     if (empty($username) || empty($password)) {
         $error_message = 'يرجى إدخال اسم المستخدم وكلمة المرور';
     } else {
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("SELECT * FROM admin WHERE username = ?");
         $stmt->execute([$username]);
         $admin = $stmt->fetch();
-        
+
         if ($admin && $password === $admin['password']) { // في الواقع يجب استخدام password_verify()
             $_SESSION['admin'] = [
                 'id' => $admin['id'],
@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,13 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+
         .login-card {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
         }
+
         .login-header {
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
@@ -68,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-card">
@@ -75,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>🚀 لوحة التحكم</h2>
                 <p class="mb-0">دليل فعاليات المدينة</p>
             </div>
-            
+
             <div class="card-body p-4">
                 <?php if ($error_message): ?>
                     <div class="alert alert-danger alert-dismissible fade show">
@@ -83,22 +87,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
-                
+
                 <form method="POST" id="loginForm">
                     <div class="mb-3">
                         <label for="username" class="form-label">اسم المستخدم</label>
-                        <input type="text" class="form-control" id="username" name="username" 
-                               value="<?= $_POST['username'] ?? '' ?>" required>
+                        <input type="text" class="form-control" id="username" name="username"
+                            value="<?= $_POST['username'] ?? '' ?>" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="password" class="form-label">كلمة المرور</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary w-100 py-2">تسجيل الدخول</button>
                 </form>
-                
+
                 <div class="text-center mt-3">
                     <small class="text-muted">بيانات الدخول الافتراضية: admin / admin</small>
                 </div>
@@ -111,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
+
             if (!username || !password) {
                 e.preventDefault();
                 alert('يرجى ملء جميع الحقول');
@@ -119,4 +123,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
+
 </html>

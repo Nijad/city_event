@@ -158,13 +158,7 @@ function initializeScrollToTop() {
 }
 
 // ===== نظام الفعاليات والحجوزات =====
-function initializeEventSystem() {
-  console.log("🎪 تهيئة نظام الفعاليات...");
-
-  initializeBookingSystem();
-  initializeEventActions();
-  loadEventsData();
-}
+// ...existing code...
 
 function initializeBookingSystem() {
   // تهيئة أزرار الحجز
@@ -232,37 +226,60 @@ async function handleBookingSubmit(e) {
 
   console.log("📨 معالجة طلب الحجز...");
 
-  const formData = new FormData(this);
-  const submitButton = this.querySelector('button[type="submit"]');
-  const originalText = submitButton.innerHTML;
+  const form = e.target;
+  const formData = new FormData(form);
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalText = submitButton ? submitButton.innerHTML : "تأكيد الحجز";
 
-  // تعطيل الزر أثناء المعالجة
-  submitButton.disabled = true;
-  submitButton.innerHTML =
-    '<span class="spinner-border spinner-border-sm" role="status"></span> جاري الحجز...';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.innerHTML =
+      '<span class="spinner-border spinner-border-sm" role="status"></span> جاري الحجز...';
+  }
 
   try {
-    // محاكاة إرسال البيانات (في التطبيق الحقيقي ستكون fetch إلى server)
-    await simulateBookingRequest(formData);
+    // إرسال بيانات الحجز إلى الخادم
+    const resp = await fetch('book_event.php', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Let browser set Content-Type for FormData; accept JSON response
+        'Accept': 'application/json'
+      }
+    });
 
-    // إظهار رسالة نجاح
-    showAlert("تم الحجز بنجاح! سنتواصل معك قريباً.", "success");
+    // حاول تحليل JSON من الاستجابة
+    let data = null;
+    try {
+      data = await resp.json();
+    } catch (parseErr) {
+      console.error('Failed to parse JSON response', parseErr);
+    }
 
-    // إغلاق المودال
-    const modal = bootstrap.Modal.getInstance(
-      document.getElementById("bookingModal")
-    );
-    modal.hide();
+  if (resp.ok && data?.success) {
+      showAlert(data.message || "تم الحجز بنجاح! سنتواصل معك قريباً.", "success");
 
-    // إعادة تعيين النموذج
-    this.reset();
+      // إغلاق المودال
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("bookingModal")
+      );
+      if (modal) modal.hide();
+
+      // إعادة تعيين النموذج
+      form.reset();
+    } else {
+      const msg = data?.message || 'حدث خطأ أثناء الحجز. حاول مرة أخرى.';
+      showAlert(msg, 'danger');
+      console.error('Booking failed', resp.status, data);
+    }
   } catch (error) {
     console.error("❌ خطأ في الحجز:", error);
-    showAlert("حدث خطأ أثناء الحجز. يرجى المحاولة مرة أخرى.", "danger");
+    showAlert("خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.", "danger");
   } finally {
-    // إعادة تمكين الزر
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalText;
+    }
   }
 }
 
@@ -716,9 +733,9 @@ function displayFeaturedEvents(events) {
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <img src="${event.image || "assets/img/default-event.jpg"}" 
-                         class="d-block w-100 rounded-3" 
-                         alt="${event.title}"
-                         style="height: 400px; object-fit: cover;">
+                        class="d-block w-100 rounded-3" 
+                        alt="${event.title}"
+                        style="height: 400px; object-fit: cover;">
                 </div>
                 <div class="col-md-6">
                     <div class="carousel-content p-4">

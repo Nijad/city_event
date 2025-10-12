@@ -17,6 +17,7 @@ $related_events = $related_stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +25,7 @@ $related_events = $related_stmt->fetchAll();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
     <?php include 'header.php'; ?>
 
@@ -40,14 +42,13 @@ $related_events = $related_stmt->fetchAll();
 
                 <article>
                     <h1 class="mb-3"><?= $event['title'] ?></h1>
-                    
+
                     <div class="row mb-4">
-                        <img 
+                        <img
                             src="<?= getEventImage($event['image']) ?>"
-                            class="col-md-6 img-fluid rounded" 
+                            class="col-md-6 img-fluid rounded"
                             alt="<?= $event['title'] ?>"
-                            onerror="this.src='assets/img/default-event.jpg'"
-                        />
+                            onerror="this.src='assets/img/default-event.jpg'" />
                     </div>
 
                     <div class="row mb-4">
@@ -69,9 +70,9 @@ $related_events = $related_stmt->fetchAll();
                     </div>
 
                     <div class="d-flex gap-2 mb-4">
-                        <button class="btn btn-success book-event" 
-                                data-event-id="<?= $event['id'] ?>" 
-                                data-event-title="<?= $event['title'] ?>">
+                        <button class="btn btn-success book-event"
+                            data-event-id="<?= $event['id'] ?>"
+                            data-event-title="<?= $event['title'] ?>">
                             🎫 احجز مقعدك الآن
                         </button>
                         <button class="btn btn-outline-primary" onclick="shareEvent()">
@@ -152,23 +153,24 @@ $related_events = $related_stmt->fetchAll();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-    function shareEvent() {
-        if (navigator.share) {
-            navigator.share({
-                title: '<?= $event['title'] ?>',
-                text: '<?= substr($event['description'], 0, 100) ?>...',
-                url: window.location.href
-            });
-        } else {
-            alert('شارك الرابط: ' + window.location.href);
+        function shareEvent() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '<?= $event['title'] ?>',
+                    text: '<?= substr($event['description'], 0, 100) ?>...',
+                    url: window.location.href
+                });
+            } else {
+                alert('شارك الرابط: ' + window.location.href);
+            }
         }
-    }
 
-    function addToCalendar() {
-        const eventDate = new Date('<?= $event['event_date'] ?>');
-        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=<?= urlencode($event['title']) ?>&dates=${eventDate.toISOString().replace(/[-:]/g, '').split('.')[0]}/${eventDate.toISOString().replace(/[-:]/g, '').split('.')[0]}&details=<?= urlencode($event['description']) ?>&location=<?= urlencode($event['location']) ?>`;
-        window.open(calendarUrl, '_blank');
-    }
+        function addToCalendar() {
+            const eventDate = new Date('<?= $event['event_date'] ?>');
+            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=<?= urlencode($event['title']) ?>&dates=${eventDate.toISOString().replace(/[-:]/g, '').split('.')[0]}/${eventDate.toISOString().replace(/[-:]/g, '').split('.')[0]}&details=<?= urlencode($event['description']) ?>&location=<?= urlencode($event['location']) ?>`;
+            window.open(calendarUrl, '_blank');
+        }
     </script>
 </body>
+
 </html>
