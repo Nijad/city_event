@@ -1,7 +1,5 @@
 // ===== تهيئة التطبيق عند تحميل الصفحة =====
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("🚀 بدء تهيئة تطبيق دليل الفعاليات...");
-
   // تهيئة جميع الأنظمة
   initializeDarkMode();
   initializeScrollToTop();
@@ -9,14 +7,10 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeContactForm();
   initializeSearchFilter();
   initializeAnimations();
-
-  console.log("✅ تم تهيئة التطبيق بنجاح");
 });
 
 // ===== نظام الوضع الليلي (Dark Mode) =====
 function initializeDarkMode() {
-  console.log("🌙 تهيئة نظام الوضع الليلي...");
-
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
 
@@ -44,11 +38,8 @@ function initializeDarkMode() {
     event.preventDefault();
     event.stopPropagation();
 
-    console.log("🖱️ تم النقر على زر الوضع الليلي");
-
     // تبديل الوضع
     currentTheme = currentTheme === "light" ? "dark" : "light";
-    console.log("🔄 الانتقال إلى الوضع:", currentTheme);
 
     // تطبيق التغييرات
     applyTheme(currentTheme);
@@ -67,8 +58,6 @@ function initializeDarkMode() {
         applyTheme(newTheme);
       }
     });
-
-  console.log("✅ نظام الوضع الليلي جاهز - الوضع الحالي:", currentTheme);
 }
 
 function applyTheme(theme) {
@@ -129,8 +118,6 @@ function showThemeNotification(theme) {
 
 // ===== نظام العودة للأعلى =====
 function initializeScrollToTop() {
-  console.log("⬆️ تهيئة زر العودة للأعلى...");
-
   const scrollButton = document.getElementById("scrollToTop");
   if (!scrollButton) {
     console.warn("⚠️ زر العودة للأعلى غير موجود");
@@ -153,8 +140,6 @@ function initializeScrollToTop() {
       behavior: "smooth",
     });
   });
-
-  console.log("✅ زر العودة للأعلى جاهز");
 }
 
 // ===== نظام الفعاليات والحجوزات =====
@@ -195,36 +180,31 @@ function initializeEventActions() {
 
 function loadEventsData() {
   // محاكاة تحميل البيانات (في التطبيق الحقيقي ستكون من API)
-  console.log("📥 جاري تحميل بيانات الفعاليات...");
-
   // يمكن إضافة AJAX call هنا لتحميل البيانات الحقيقية
-  setTimeout(() => {
-    console.log("✅ تم تحميل بيانات الفعاليات");
-  }, 500);
+  setTimeout(() => {}, 500);
 }
 
 function openBookingModal(eventId, eventTitle) {
-  console.log("🎫 فتح نموذج حجز الفعالية:", eventTitle);
-
   const modalElement = document.getElementById("bookingModal");
   if (!modalElement) {
     console.error("❌ نموذج الحجز غير موجود");
     return;
   }
 
-  // تعيين بيانات الفعالية
-  document.getElementById("bookingEventTitle").textContent = eventTitle;
-  document.getElementById("eventId").value = eventId;
+  // تعيين بيانات الفعالية (guard against missing elements)
+  const titleEl = document.getElementById("bookingEventTitle");
+  if (titleEl) titleEl.textContent = eventTitle;
 
-  // فتح المودال
-  const modal = new bootstrap.Modal(modalElement);
+  const eventIdEl = document.getElementById("eventId");
+  if (eventIdEl) eventIdEl.value = eventId;
+
+  // Use getOrCreateInstance to ensure there's a Modal instance attached
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
   modal.show();
 }
 
 async function handleBookingSubmit(e) {
   e.preventDefault();
-
-  console.log("📨 معالجة طلب الحجز...");
 
   const form = e.target;
   const formData = new FormData(form);
@@ -239,13 +219,13 @@ async function handleBookingSubmit(e) {
 
   try {
     // إرسال بيانات الحجز إلى الخادم
-    const resp = await fetch('book_event.php', {
-      method: 'POST',
+    const resp = await fetch("book_event.php", {
+      method: "POST",
       body: formData,
       headers: {
         // Let browser set Content-Type for FormData; accept JSON response
-        'Accept': 'application/json'
-      }
+        Accept: "application/json",
+      },
     });
 
     // حاول تحليل JSON من الاستجابة
@@ -253,25 +233,30 @@ async function handleBookingSubmit(e) {
     try {
       data = await resp.json();
     } catch (parseErr) {
-      console.error('Failed to parse JSON response', parseErr);
+      console.error("Failed to parse JSON response", parseErr);
     }
 
-  if (resp.ok && data?.success) {
-      showAlert(data.message || "تم الحجز بنجاح! سنتواصل معك قريباً.", "success");
+    if (resp.ok && data?.success) {
+  showAlert(data.message || "تم الحجز بنجاح! سنتواصل معك قريباً.", "success");
 
-      // إغلاق المودال
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("bookingModal")
-      );
-      if (modal) modal.hide();
-
-      // إعادة تعيين النموذج
-      form.reset();
-    } else {
-      const msg = data?.message || 'حدث خطأ أثناء الحجز. حاول مرة أخرى.';
-      showAlert(msg, 'danger');
-      console.error('Booking failed', resp.status, data);
+  // Close the booking modal using getOrCreateInstance to guarantee the instance
+  const modalElement = document.getElementById("bookingModal");
+  if (modalElement) {
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+    try {
+      modalInstance.hide();
+    } catch (err) {
+      console.warn("Could not hide booking modal:", err);
     }
+  }
+
+  // إعادة تعيين النموذج
+  form.reset();
+} else {
+  const msg = data?.message || 'حدث خطأ أثناء الحجز. حاول مرة أخرى.';
+  showAlert(msg, 'danger');
+  console.error('Booking failed', resp.status, data);
+}
   } catch (error) {
     console.error("❌ خطأ في الحجز:", error);
     showAlert("خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.", "danger");
@@ -309,12 +294,8 @@ function shareEvent(button) {
         text: "تفضل بمشاهدة هذه الفعالية المميزة",
         url: eventUrl,
       })
-      .then(() => {
-        console.log("✅ تمت المشاركة بنجاح");
-      })
-      .catch((error) => {
-        console.log("❌ تم إلغاء المشاركة:", error);
-      });
+      .then(() => {})
+      .catch((error) => {});
   } else {
     // نسخ الرابط إلى الحافظة
     navigator.clipboard
@@ -349,8 +330,6 @@ function addToCalendar(button) {
 
 // ===== نظام البحث والتصفية =====
 function initializeSearchFilter() {
-  console.log("🔍 تهيئة نظام البحث والتصفية...");
-
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
   const dateFilter = document.getElementById("dateFilter");
@@ -366,14 +345,10 @@ function initializeSearchFilter() {
   if (dateFilter) {
     dateFilter.addEventListener("change", filterEvents);
   }
-
-  console.log("✅ نظام البحث والتصفية جاهز");
 }
 
 function filterEvents() {
-  const searchTerm = (
-    document.getElementById("searchInput")?.value || ""
-  ).toLowerCase();
+  const searchTerm = (document.getElementById("searchInput")?.value || "").toLowerCase();
   const category = document.getElementById("categoryFilter")?.value || "";
   const date = document.getElementById("dateFilter")?.value || "";
 
@@ -381,15 +356,12 @@ function filterEvents() {
   let visibleCount = 0;
 
   eventCards.forEach((card) => {
-    const title =
-      card.querySelector(".card-title")?.textContent.toLowerCase() || "";
-    const description =
-      card.querySelector(".card-text")?.textContent.toLowerCase() || "";
+    const title = card.querySelector(".card-title")?.textContent.toLowerCase() || "";
+    const description = card.querySelector(".card-text")?.textContent.toLowerCase() || "";
     const cardCategory = card.getAttribute("data-category") || "";
     const cardDate = card.getAttribute("data-date")?.split(" ")[0] || "";
 
-    const matchesSearch =
-      title.includes(searchTerm) || description.includes(searchTerm);
+    const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
     const matchesCategory = !category || cardCategory === category;
     const matchesDate = !date || cardDate === date;
 
@@ -420,7 +392,8 @@ function showNoResultsMessage(show) {
                 <button onclick="clearFilters()" class="btn btn-primary">مسح الفلاتر</button>
             </div>
         `;
-    document.getElementById("eventsList").appendChild(message);
+    const eventsList = document.getElementById("eventsList");
+    if (eventsList) eventsList.appendChild(message);
   } else if (!show && message) {
     message.remove();
   }
@@ -441,8 +414,6 @@ function clearFilters() {
 
 // ===== نموذج الاتصال =====
 function initializeContactForm() {
-  console.log("📞 تهيئة نموذج الاتصال...");
-
   const contactForm = document.getElementById("contactForm");
   if (!contactForm) return;
 
@@ -464,8 +435,6 @@ function initializeContactForm() {
       }, 2000);
     }
   });
-
-  console.log("✅ نموذج الاتصال جاهز");
 }
 
 function validateContactForm() {
@@ -500,12 +469,8 @@ function validateContactForm() {
 
 // ===== نظام الحركات والتحسينات =====
 function initializeAnimations() {
-  console.log("✨ تهيئة الحركات والتحسينات...");
-
   // إضافة تأثيرات للعناصر عند التمرير
-  const animatedElements = document.querySelectorAll(
-    ".fade-in, .slide-in-left, .slide-in-right"
-  );
+  const animatedElements = document.querySelectorAll(".fade-in, .slide-in-left, .slide-in-right");
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -530,8 +495,6 @@ function initializeAnimations() {
     }
     observer.observe(el);
   });
-
-  console.log("✅ الحركات والتحسينات جاهزة");
 }
 
 // ===== وظائف مساعدة =====
@@ -605,31 +568,8 @@ window.openBookingModal = openBookingModal;
 window.shareEvent = shareEvent;
 window.addToCalendar = addToCalendar;
 
-// ===== إضافة أنماط CSS للحركات =====
-const style = document.createElement("style");
-style.textContent = `
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    
-    .theme-notification {
-        animation: slideInRight 0.3s ease;
-    }
-    
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-`;
-document.head.appendChild(style);
-
-console.log("🎉 تم تحميل main.js بنجاح!");
-
-// في دالة initializeEventSystem، أضف تحميل السلايدر
+// ===== Initialize Event System (includes carousel init) =====
 function initializeEventSystem() {
-  console.log("🎪 تهيئة نظام الفعاليات...");
-
   initializeBookingSystem();
   initializeEventActions();
   loadEventsData();
@@ -638,17 +578,19 @@ function initializeEventSystem() {
 
 // دالة تهيئة سلايدر الفعاليات البارزة
 function initializeFeaturedEventsCarousel() {
-  console.log("🔄 تهيئة سلايدر الفعاليات البارزة...");
-
   const carousel = document.getElementById("featuredEventsCarousel");
   if (!carousel) {
     console.warn("⚠️ سلايدر الفعاليات البارزة غير موجود");
     return;
   }
 
+  // Avoid double-initialization: mark as initialized
+  if (carousel.dataset.initialized === "1") return;
+  carousel.dataset.initialized = "1";
+
   // إضافة تأثيرات تفاعلية
   const carouselItems = carousel.querySelectorAll(".carousel-item");
-  carouselItems.forEach((item, index) => {
+  carouselItems.forEach((item) => {
     // إضافة تأثير عند التمرير
     item.addEventListener("mouseenter", function () {
       this.style.transform = "scale(1.02)";
@@ -680,8 +622,6 @@ function initializeFeaturedEventsCarousel() {
       }
     }, 5000);
   });
-
-  console.log("✅ سلايدر الفعاليات البارزة جاهز");
 }
 
 // دالة لتحميل الفعاليات البارزة عبر AJAX (اختياري)
@@ -698,18 +638,14 @@ function loadFeaturedEventsViaAjax() {
 
 // دالة لعرض الفعاليات البارزة (للاستخدام مع AJAX)
 function displayFeaturedEvents(events) {
-  const carouselInner = document.querySelector(
-    "#featuredEventsCarousel .carousel-inner"
-  );
-  const carouselIndicators = document.querySelector(
-    "#featuredEventsCarousel .carousel-indicators"
-  );
+  const carouselInner = document.querySelector("#featuredEventsCarousel .carousel-inner");
+  const carouselIndicators = document.querySelector("#featuredEventsCarousel .carousel-indicators");
 
   if (!carouselInner || !events.length) return;
 
   // مسح المحتوى الحالي
   carouselInner.innerHTML = "";
-  carouselIndicators.innerHTML = "";
+  if (carouselIndicators) carouselIndicators.innerHTML = "";
 
   // إضافة الشرائح الجديدة
   events.forEach((event, index) => {
@@ -740,25 +676,14 @@ function displayFeaturedEvents(events) {
                 <div class="col-md-6">
                     <div class="carousel-content p-4">
                         <h3 class="text-primary">${event.title}</h3>
-                        <p class="lead">${event.description.substring(
-                          0,
-                          150
-                        )}...</p>
+                        <p class="lead">${event.description.substring(0, 150)}...</p>
                         <div class="event-info mb-3">
-                            <p class="mb-1"><strong>📅 التاريخ:</strong> ${
-                              event.event_date
-                            }</p>
-                            <p class="mb-1"><strong>📍 المكان:</strong> ${
-                              event.location
-                            }</p>
-                            <p class="mb-1"><strong>🏷️ التصنيف:</strong> ${
-                              event.category
-                            }</p>
+                            <p class="mb-1"><strong>📅 التاريخ:</strong> ${event.event_date}</p>
+                            <p class="mb-1"><strong>📍 المكان:</strong> ${event.location}</p>
+                            <p class="mb-1"><strong>🏷️ التصنيف:</strong> ${event.category}</p>
                         </div>
                         <div class="carousel-buttons">
-                            <a href="event.php?id=${
-                              event.id
-                            }" class="btn btn-primary me-2">عرض التفاصيل</a>
+                            <a href="event.php?id=${event.id}" class="btn btn-primary me-2">عرض التفاصيل</a>
                             <button class="btn btn-success book-event" 
                                     data-event-id="${event.id}" 
                                     data-event-title="${event.title}">
@@ -772,6 +697,53 @@ function displayFeaturedEvents(events) {
     carouselInner.appendChild(slide);
   });
 
-  // إعادة تهيئة السلايدر
+  // إعادة تهيئة السلايدر (harmless now thanks to the initialization guard)
   initializeFeaturedEventsCarousel();
 }
+
+// ===== Theme toggle helper (top-level, single definition) =====
+function setTheme(theme) {
+  const html = document.documentElement;
+  // temporarily disable transitions only while switching
+  html.setAttribute("data-theme-transition", "1");
+
+  // apply the theme attribute and update UI via existing applyTheme()
+  html.setAttribute("data-theme", theme);
+  applyTheme(theme); // updates icon & meta color
+
+  // re-enable transitions shortly after
+  setTimeout(() => {
+    html.removeAttribute("data-theme-transition");
+  }, 120); // 80-200ms typical
+}
+// export to global if needed by inline handlers
+window.setTheme = setTheme;
+
+// ===== Add dynamic styles (guarded to avoid duplicate declarations) =====
+(function ensureDynamicStyles() {
+  const STYLE_ID = "city-event-dynamic-style";
+  const css = `
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+
+    .theme-notification {
+        animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+  `;
+
+  let styleEl = document.getElementById(STYLE_ID);
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = STYLE_ID;
+    document.head.appendChild(styleEl);
+  }
+  // Only update textContent if different (avoids unnecessary DOM churn)
+  if (styleEl.textContent !== css) styleEl.textContent = css;
+})();

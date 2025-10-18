@@ -2,6 +2,7 @@
 session_start();
 include '../db.php';
 include '../functions/images.php';
+include '../config/upload_simple.php';
 
 if (!isset($_SESSION['admin'])) {
     header('Location: login.php');

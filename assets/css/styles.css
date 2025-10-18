@@ -1067,3 +1067,86 @@ footer .list-unstyled li {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 /* ===== نهاية الملف ===== */
+
+/* ===== Fixes for dark-mode readability ===== */
+:root {
+  --header-text-color: #ffffff;
+  --muted-text-color: #6c757d;
+}
+
+[data-theme="dark"] {
+  --header-text-color: #e0e0e0;
+  --muted-text-color: #a0a0a0;
+  --primary-color-rgb: 13, 110, 253; /* keep primary rgb in sync */
+}
+
+/* Use header text color variable for navbar items (prevents hard-coded contrast issues) */
+.navbar-brand,
+.navbar-nav .nav-link {
+  color: var(--header-text-color) !important;
+}
+
+/* Force readable text on common elements in dark mode */
+[data-theme="dark"] body,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] p,
+[data-theme="dark"] a,
+[data-theme="dark"] li,
+[data-theme="dark"] span,
+[data-theme="dark"] button,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] label {
+  color: var(--text-color) !important;
+}
+
+/* Fix gradient/transparent text classes that may become invisible */
+[data-theme="dark"] .text-gradient {
+  -webkit-text-fill-color: unset !important;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: var(--text-color) !important;
+}
+
+/* Form placeholders and muted text */
+[data-theme="dark"] ::placeholder {
+  color: var(--input-text) !important;
+  opacity: 0.85;
+}
+[data-theme="dark"] .text-muted {
+  color: var(--muted-text-color) !important;
+}
+
+/* Buttons/links: ensure contrast on nested elements */
+[data-theme="dark"] .btn,
+[data-theme="dark"] .btn * {
+  color: var(--text-color) !important;
+}
+
+/* Prevent transition flicker while toggling theme (optionally used with JS toggle) */
+/* Only disable transitions while the html[data-theme-transition] attribute is present.
+   Do NOT disable transitions for the entire dark theme (that breaks carousels/animations). */
+html[data-theme-transition] * {
+  transition-property: none !important;
+  transition-duration: 0s !important;
+}
+
+/* Keep transitions enabled in dark mode normally so components (carousel, fades) work */
+[data-theme="dark"] * {
+  /* no global transition override here */
+}
+
+/* Optional: explicitly ensure carousel transitions stay enabled and smooth */
+.carousel-item,
+.carousel-fade .carousel-item,
+.carousel-control-prev,
+.carousel-control-next {
+  transition-property: transform, opacity, background-color;
+  transition-duration: 0.6s;
+  transition-timing-function: ease-in-out;
+}

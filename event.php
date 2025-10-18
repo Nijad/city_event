@@ -156,8 +156,8 @@ $related_events = $related_stmt->fetchAll();
         function shareEvent() {
             if (navigator.share) {
                 navigator.share({
-                    title: '<?= $event['title'] ?>',
-                    text: '<?= substr($event['description'], 0, 100) ?>...',
+                    title: <?= json_encode($event['title']) ?>,
+                    text: <?= json_encode(substr($event['description'], 0, 100) . '...') ?>,
                     url: window.location.href
                 });
             } else {
@@ -166,8 +166,23 @@ $related_events = $related_stmt->fetchAll();
         }
 
         function addToCalendar() {
-            const eventDate = new Date('<?= $event['event_date'] ?>');
-            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=<?= urlencode($event['title']) ?>&dates=${eventDate.toISOString().replace(/[-:]/g, '').split('.')[0]}/${eventDate.toISOString().replace(/[-:]/g, '').split('.')[0]}&details=<?= urlencode($event['description']) ?>&location=<?= urlencode($event['location']) ?>`;
+            // Use server-provided event date safely as a JS string
+            const eventDate = new Date(<?= json_encode($event['event_date']) ?>);
+
+            // Format dates for Google Calendar: YYYYMMDDTHHMMSS (use ISO and strip non-digits)
+            const iso = eventDate.toISOString();
+            const when = iso.replace(/[-:]/g, '').split('.')[0];
+
+            const title = <?= json_encode($event['title']) ?>;
+            const details = <?= json_encode($event['description']) ?>;
+            const location = <?= json_encode($event['location']) ?>;
+
+            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+                `&text=${encodeURIComponent(title)}` +
+                `&dates=${when}/${when}` +
+                `&details=${encodeURIComponent(details)}` +
+                `&location=${encodeURIComponent(location)}`;
+
             window.open(calendarUrl, '_blank');
         }
     </script>

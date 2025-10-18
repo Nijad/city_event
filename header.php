@@ -34,9 +34,7 @@
                 <li class="nav-item"><a class="nav-link" href="events.php">الفعاليات</a></li>
                 <li class="nav-item"><a class="nav-link" href="about.php">عن الدليل</a></li>
                 <li class="nav-item"><a class="nav-link" href="contact.php">اتصل بنا</a></li>
-                <?php if(isset($_SESSION['admin'])): ?>
                 <li class="nav-item"><a class="nav-link text-warning" href="admin/dashboard.php">لوحة التحكم</a></li>
-                <?php endif; ?>
             </ul>
             
             <div class="d-flex align-items-center">
@@ -52,7 +50,7 @@
 <script>
 // تهيئة فورية عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== بدء تهيئة الوضع الليلي ===');
+    
     
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
@@ -62,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    console.log('✅ عناصر الوضع الليلي موجودة');
+    
     
     // الحصول على الوضع الحالي
     let currentTheme = localStorage.getItem('theme');
@@ -71,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('theme', currentTheme);
     }
     
-    console.log('🎯 الوضع الحالي:', currentTheme);
+    
     
     // تطبيق الوضع الحالي
     applyTheme(currentTheme);
@@ -81,11 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         event.stopPropagation();
         
-        console.log('🖱️ تم النقر على زر الوضع الليلي');
+        
         
         // تبديل الوضع
         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-        console.log('🔄 الوضع الجديد:', currentTheme);
+        
         
         // تطبيق التغييرات
         applyTheme(currentTheme);
@@ -93,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function applyTheme(theme) {
-        console.log('🎨 تطبيق الوضع:', theme);
+        
         
         // تغيير سمة HTML
         document.documentElement.setAttribute('data-theme', theme);
@@ -106,12 +104,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.remove('theme-light', 'theme-dark');
         document.body.classList.add('theme-' + theme);
         
-        console.log('✅ تم تطبيق الوضع بنجاح');
+        
     }
     
     // اختبار الوظيفة بعد التحميل
     setTimeout(() => {
-        console.log('🧪 اختبار الوضع الليلي:', {
+        
             theme: currentTheme,
             htmlTheme: document.documentElement.getAttribute('data-theme'),
             localStorage: localStorage.getItem('theme'),
@@ -132,6 +130,6 @@ window.toggleTheme = function() {
         themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
     }
     
-    console.log('🔧 تم تبديل الوضع يدويًا إلى:', newTheme);
+    
 };
 </script>
