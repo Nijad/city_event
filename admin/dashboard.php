@@ -44,63 +44,13 @@ $recent_bookings = $pdo->query("
         .stat-card:hover {
             transform: translateY(-5px);
         }
-        .sidebar {
-            min-height: 100vh;
-            background: #343a40;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            padding: 15px 20px;
-            border-left: 3px solid transparent;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: white;
-            background: #495057;
-            border-left-color: #007bff;
-        }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <!-- الشريط الجانبي -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center text-white p-3">
-                        <h5>لوحة التحكم</h5>
-                        <small>مرحباً، <?= $_SESSION['admin']['username'] ?></small>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="dashboard.php">
-                                📊 الرئيسية
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="events.php">
-                                🎪 إدارة الفعاليات
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="bookings.php">
-                                📋 إدارة الحجوزات
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="add_event.php">
-                                ➕ إضافة فعالية
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="logout.php">
-                                🚪 تسجيل الخروج
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
+            <?php include 'sidebar.php'; ?>
             <!-- المحتوى الرئيسي -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <!-- شريط الأدوات -->

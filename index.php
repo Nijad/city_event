@@ -127,7 +127,6 @@
             </div>
         </section>
 
-        <!-- باقي المحتوى يبقى كما هو -->
         <section class="latest-events py-5 bg-light">
             <div class="container">
                 <h2 class="text-center mb-4 section-title">أحدث الفعاليات</h2>
@@ -142,9 +141,6 @@
     </main>
 
     <?php include 'footer.php'; ?>
-    
-    <!-- زر العودة للأعلى -->
-    <button id="scrollToTop" class="scroll-to-top">↑</button>
 
     <!-- نموذج الحجز -->
     <div class="modal fade booking-modal" id="bookingModal" tabindex="-1">
@@ -152,7 +148,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">حجز فعالية: <span id="bookingEventTitle"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="bookingForm">
@@ -171,7 +167,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">عدد التذاكر</label>
-                            <select name="tickets" class="form-select" required>
+                            <select name="tickets" class="form-select" style="direction: ltr;" required>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
@@ -186,7 +182,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/main.js"></script>
+    <!-- page-specific scripts are loaded in footer.php (shared). -->
 </body>
 </html>

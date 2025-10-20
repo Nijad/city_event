@@ -51,7 +51,6 @@
 // تهيئة فورية عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
     
-    
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     
@@ -60,17 +59,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    
-    
     // الحصول على الوضع الحالي
     let currentTheme = localStorage.getItem('theme');
     if (!currentTheme) {
         currentTheme = 'light';
         localStorage.setItem('theme', currentTheme);
     }
-    
-    
-    
+
     // تطبيق الوضع الحالي
     applyTheme(currentTheme);
     
@@ -79,20 +74,15 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         event.stopPropagation();
         
-        
-        
         // تبديل الوضع
         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
         
         // تطبيق التغييرات
         applyTheme(currentTheme);
         localStorage.setItem('theme', currentTheme);
     });
     
-    function applyTheme(theme) {
-        
-        
+    function applyTheme(theme) {        
         // تغيير سمة HTML
         document.documentElement.setAttribute('data-theme', theme);
         
@@ -103,19 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // إضافة class للمساعدة في التصحيح
         document.body.classList.remove('theme-light', 'theme-dark');
         document.body.classList.add('theme-' + theme);
-        
-        
     }
-    
-    // اختبار الوظيفة بعد التحميل
-    setTimeout(() => {
-        
-            theme: currentTheme,
-            htmlTheme: document.documentElement.getAttribute('data-theme'),
-            localStorage: localStorage.getItem('theme'),
-            icon: themeIcon.textContent
-        });
-    }, 100);
 });
 
 // أيضًا جعل الوظيفة متاحة globally للاختبار
@@ -129,7 +107,5 @@ window.toggleTheme = function() {
     if (themeIcon) {
         themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
     }
-    
-    
 };
 </script>

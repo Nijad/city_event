@@ -26,9 +26,12 @@
     </div>
 </footer>
 
-<button id="scrollToTop" class="scroll-to-top">↑</button>
+    <!-- زر العودة للأعلى -->
+    <button id="scrollToTop" class="scroll-to-top">↑</button>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
-</body>
-</html>
+    <!-- Shared scripts (centralized) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    </body>
+    </html>

@@ -22,7 +22,7 @@ include 'functions/images.php';
                 <input type="text" id="searchInput" class="form-control" placeholder="ابحث في الفعاليات...">
             </div>
             <div class="col-md-3">
-                <select id="categoryFilter" class="form-select">
+                <select id="categoryFilter" class="form-select" style="direction: ltr;">
                     <option value="">جميع التصنيفات</option>
                     <option value="ثقافة">ثقافة</option>
                     <option value="رياضة">رياضة</option>
@@ -96,7 +96,7 @@ include 'functions/images.php';
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">حجز فعالية: <span id="bookingEventTitle"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="bookingForm">
@@ -115,7 +115,7 @@ include 'functions/images.php';
                         </div>
                         <div class="mb-3">
                             <label class="form-label">عدد التذاكر</label>
-                            <select name="tickets" class="form-select" required>
+                            <select name="tickets" class="form-select" style="direction:ltr;" required>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
@@ -130,8 +130,7 @@ include 'functions/images.php';
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/main.js"></script>
+    <!-- page-specific script -->
     <script src="assets/js/events.js"></script>
 </body>
 </html>

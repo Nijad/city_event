@@ -1150,3 +1150,19 @@ html[data-theme-transition] * {
   transition-duration: 0.6s;
   transition-timing-function: ease-in-out;
 }
+
+.sidebar {
+  min-height: 100vh;
+  background: #343a40 !important;
+}
+.sidebar .nav-link {
+  color: #adb5bd;
+  padding: 15px 20px;
+  border-left: 3px solid transparent;
+}
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  color: white;
+  background: #495057;
+  border-left-color: #007bff;
+}

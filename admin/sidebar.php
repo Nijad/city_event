@@ -7,31 +7,31 @@
             <h5>🚀 لوحة التحكم</h5>
             <small>مرحباً، <?= $_SESSION['admin']['username'] ?? 'زائر' ?></small>
             <br>
-            <small class="text-muted">دليل فعاليات المدينة</small>
+            <small>دليل فعاليات المدينة</small>
         </div>
         
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>" 
-                   href="dashboard.php">
+                    href="dashboard.php">
                     📊 الرئيسية
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'events.php' ? 'active' : '' ?>" 
-                   href="events.php">
+                    href="events.php">
                     🎪 إدارة الفعاليات
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'bookings.php' ? 'active' : '' ?>" 
-                   href="bookings.php">
+                    href="bookings.php">
                     📋 إدارة الحجوزات
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'add_event.php' ? 'active' : '' ?>" 
-                   href="add_event.php">
+                    href="add_event.php">
                     ➕ إضافة فعالية
                 </a>
             </li>
@@ -49,7 +49,7 @@
         
         <!-- إحصائيات سريعة -->
         <div class="mt-4 p-3 border-top">
-            <small class="text-muted d-block">إحصائيات سريعة:</small>
+            <small class="text-white d-block">إحصائيات سريعة:</small>
             <small class="text-white">
                 <?php
                 if (isset($pdo)) {

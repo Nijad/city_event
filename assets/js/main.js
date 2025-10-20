@@ -16,7 +16,6 @@ function initializeDarkMode() {
 
   // التحقق من وجود العناصر
   if (!themeToggle || !themeIcon) {
-    console.warn("⚠️ عناصر الوضع الليلي غير موجودة");
     return;
   }
 
@@ -120,7 +119,6 @@ function showThemeNotification(theme) {
 function initializeScrollToTop() {
   const scrollButton = document.getElementById("scrollToTop");
   if (!scrollButton) {
-    console.warn("⚠️ زر العودة للأعلى غير موجود");
     return;
   }
 
@@ -179,9 +177,88 @@ function initializeEventActions() {
 }
 
 function loadEventsData() {
-  // محاكاة تحميل البيانات (في التطبيق الحقيقي ستكون من API)
-  // يمكن إضافة AJAX call هنا لتحميل البيانات الحقيقية
-  setTimeout(() => {}, 500);
+  // Fetch latest 4 events from server and render them
+  fetch("api/get_latest_events.php")
+    .then((resp) => {
+      if (!resp.ok) throw new Error("Network response was not ok");
+      return resp.json();
+    })
+    .then((events) => {
+      renderLatestEvents(events);
+    })
+    .catch((err) => {
+      console.error("Failed to load latest events:", err);
+      // optional: show fallback message
+      const grid = document.getElementById("eventsGrid");
+      if (grid) {
+        grid.innerHTML = `<div class="col-12"><div class="alert alert-info">تعذر تحميل أحدث الفعاليات حالياً.</div></div>`;
+      }
+    });
+}
+
+// Render events into #eventsGrid
+function renderLatestEvents(events = []) {
+  const grid = document.getElementById("eventsGrid");
+  if (!grid) return;
+
+  if (!events.length) {
+    grid.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <div class="alert alert-info">
+          <h4>لا توجد فعاليات</h4>
+          <p>لم يتم إضافة فعاليات جديدة حتى الآن.</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Build cards for up to 4 events
+  const html = events
+    .slice(0, 4)
+    .map((event) => {
+      const title = escapeHtml(event.title);
+      const desc = escapeHtml((event.description || "").substring(0, 120));
+      const image = event.image || "assets/img/default-event.jpg";
+      const date = event.event_date ? event.event_date : "";
+      const location = escapeHtml(event.location || "");
+      return `
+      <div class="col-md-3 mb-4">
+        <div class="card h-100 event-card" data-category="${escapeHtml(
+          event.category || ""
+        )}" data-date="${escapeHtml(date)}">
+          <img src="${image}" class="card-img-top" alt="${title}" style="height:180px;object-fit:cover;" onerror="this.src='assets/img/default-event.jpg'">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">${title}</h5>
+            <p class="card-text mb-3">${desc}...</p>
+            <p class="mb-2"><small>📅 ${date}</small></p>
+            <p class="mb-3"><small>📍 ${location}</small></p>
+            <div class="mt-auto d-grid">
+              <a href="event.php?id=${
+                event.id
+              }" class="btn btn-outline-primary btn-sm">عرض التفاصيل</a>
+              <button class="btn btn-success btn-sm book-event mt-2" data-event-id="${
+                event.id
+              }" data-event-title="${title}">احجز الآن</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    })
+    .join("\n");
+
+  grid.innerHTML = html;
+}
+
+// small helper to avoid XSS when injecting text
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function openBookingModal(eventId, eventTitle) {
@@ -237,26 +314,29 @@ async function handleBookingSubmit(e) {
     }
 
     if (resp.ok && data?.success) {
-  showAlert(data.message || "تم الحجز بنجاح! سنتواصل معك قريباً.", "success");
+      showAlert(
+        data.message || "تم الحجز بنجاح! سنتواصل معك قريباً.",
+        "success"
+      );
 
-  // Close the booking modal using getOrCreateInstance to guarantee the instance
-  const modalElement = document.getElementById("bookingModal");
-  if (modalElement) {
-    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-    try {
-      modalInstance.hide();
-    } catch (err) {
-      console.warn("Could not hide booking modal:", err);
+      // Close the booking modal using getOrCreateInstance to guarantee the instance
+      const modalElement = document.getElementById("bookingModal");
+      if (modalElement) {
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+        try {
+          modalInstance.hide();
+        } catch (err) {
+          console.warn("Could not hide booking modal:", err);
+        }
+      }
+
+      // إعادة تعيين النموذج
+      form.reset();
+    } else {
+      const msg = data?.message || "حدث خطأ أثناء الحجز. حاول مرة أخرى.";
+      showAlert(msg, "danger");
+      console.error("Booking failed", resp.status, data);
     }
-  }
-
-  // إعادة تعيين النموذج
-  form.reset();
-} else {
-  const msg = data?.message || 'حدث خطأ أثناء الحجز. حاول مرة أخرى.';
-  showAlert(msg, 'danger');
-  console.error('Booking failed', resp.status, data);
-}
   } catch (error) {
     console.error("❌ خطأ في الحجز:", error);
     showAlert("خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.", "danger");
@@ -348,7 +428,9 @@ function initializeSearchFilter() {
 }
 
 function filterEvents() {
-  const searchTerm = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  const searchTerm = (
+    document.getElementById("searchInput")?.value || ""
+  ).toLowerCase();
   const category = document.getElementById("categoryFilter")?.value || "";
   const date = document.getElementById("dateFilter")?.value || "";
 
@@ -356,12 +438,15 @@ function filterEvents() {
   let visibleCount = 0;
 
   eventCards.forEach((card) => {
-    const title = card.querySelector(".card-title")?.textContent.toLowerCase() || "";
-    const description = card.querySelector(".card-text")?.textContent.toLowerCase() || "";
+    const title =
+      card.querySelector(".card-title")?.textContent.toLowerCase() || "";
+    const description =
+      card.querySelector(".card-text")?.textContent.toLowerCase() || "";
     const cardCategory = card.getAttribute("data-category") || "";
     const cardDate = card.getAttribute("data-date")?.split(" ")[0] || "";
 
-    const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+    const matchesSearch =
+      title.includes(searchTerm) || description.includes(searchTerm);
     const matchesCategory = !category || cardCategory === category;
     const matchesDate = !date || cardDate === date;
 
@@ -470,7 +555,9 @@ function validateContactForm() {
 // ===== نظام الحركات والتحسينات =====
 function initializeAnimations() {
   // إضافة تأثيرات للعناصر عند التمرير
-  const animatedElements = document.querySelectorAll(".fade-in, .slide-in-left, .slide-in-right");
+  const animatedElements = document.querySelectorAll(
+    ".fade-in, .slide-in-left, .slide-in-right"
+  );
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -580,7 +667,6 @@ function initializeEventSystem() {
 function initializeFeaturedEventsCarousel() {
   const carousel = document.getElementById("featuredEventsCarousel");
   if (!carousel) {
-    console.warn("⚠️ سلايدر الفعاليات البارزة غير موجود");
     return;
   }
 
@@ -638,8 +724,12 @@ function loadFeaturedEventsViaAjax() {
 
 // دالة لعرض الفعاليات البارزة (للاستخدام مع AJAX)
 function displayFeaturedEvents(events) {
-  const carouselInner = document.querySelector("#featuredEventsCarousel .carousel-inner");
-  const carouselIndicators = document.querySelector("#featuredEventsCarousel .carousel-indicators");
+  const carouselInner = document.querySelector(
+    "#featuredEventsCarousel .carousel-inner"
+  );
+  const carouselIndicators = document.querySelector(
+    "#featuredEventsCarousel .carousel-indicators"
+  );
 
   if (!carouselInner || !events.length) return;
 
@@ -676,14 +766,25 @@ function displayFeaturedEvents(events) {
                 <div class="col-md-6">
                     <div class="carousel-content p-4">
                         <h3 class="text-primary">${event.title}</h3>
-                        <p class="lead">${event.description.substring(0, 150)}...</p>
+                        <p class="lead">${event.description.substring(
+                          0,
+                          150
+                        )}...</p>
                         <div class="event-info mb-3">
-                            <p class="mb-1"><strong>📅 التاريخ:</strong> ${event.event_date}</p>
-                            <p class="mb-1"><strong>📍 المكان:</strong> ${event.location}</p>
-                            <p class="mb-1"><strong>🏷️ التصنيف:</strong> ${event.category}</p>
+                            <p class="mb-1"><strong>📅 التاريخ:</strong> ${
+                              event.event_date
+                            }</p>
+                            <p class="mb-1"><strong>📍 المكان:</strong> ${
+                              event.location
+                            }</p>
+                            <p class="mb-1"><strong>🏷️ التصنيف:</strong> ${
+                              event.category
+                            }</p>
                         </div>
                         <div class="carousel-buttons">
-                            <a href="event.php?id=${event.id}" class="btn btn-primary me-2">عرض التفاصيل</a>
+                            <a href="event.php?id=${
+                              event.id
+                            }" class="btn btn-primary me-2">عرض التفاصيل</a>
                             <button class="btn btn-success book-event" 
                                     data-event-id="${event.id}" 
                                     data-event-title="${event.title}">
