@@ -56,16 +56,16 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS contact_messages (
                 <h1 class="text-center mb-4">اتصل بنا</h1>
 
                 <?php if ($success_message): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?= $success_message ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert" style="display: inline-flex; justify-content: space-between; width: 100%;">
+                        <span style="align-content: center;"><?= $success_message ?></span>
+                        <button type="button" class="btn-close" style ="position: relative;" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($error_message): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?= $error_message ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: inline-flex; justify-content: space-between; width: 100%;">
+                        <span style="align-content: center;"><?= $error_message ?></span>
+                        <button type="button" class="btn-close" style ="position: relative;" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 

@@ -240,7 +240,7 @@ function createThumbnail($source_path, $thumb_path, $width, $height) {
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="category" class="form-label">التصنيف *</label>
-                                        <select class="form-select" id="category" name="category" required>
+                                        <select class="form-select" style="direction: ltr;" id="category" name="category" required>
                                             <option value="">اختر التصنيف</option>
                                             <option value="ثقافة" <?= ($_POST['category'] ?? '') == 'ثقافة' ? 'selected' : '' ?>>ثقافة</option>
                                             <option value="رياضة" <?= ($_POST['category'] ?? '') == 'رياضة' ? 'selected' : '' ?>>رياضة</option>
@@ -328,6 +328,8 @@ function createThumbnail($source_path, $thumb_path, $width, $height) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        var s="";
+        
         // إدارة رفع الصورة
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('event_image');
@@ -362,6 +364,7 @@ function createThumbnail($source_path, $thumb_path, $width, $height) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImage.src = e.target.result;
+                    s= e.target.result;
                     imagePreview.style.display = 'block';
                     uploadContent.innerHTML = '<p class="text-success">✓ تم اختيار الصورة بنجاح</p>';
                 };
@@ -405,6 +408,25 @@ function createThumbnail($source_path, $thumb_path, $width, $height) {
         function resetForm() {
             removeImage();
         }
+
+        const fileInput2 = document.getElementById('event_image');
+
+    fileInput2.addEventListener('change', (event) => {
+        // This function will execute when a file is selected or changed
+        const selectedFiles = event.target.files; // FileList object
+        
+        if (selectedFiles.length > 0) {
+            const firstFile = selectedFiles[0];
+            document.getElementById('nijad').src=URL.createObjectURL(firstFile);
+            s=firstFile;
+            console.log('File Name:', firstFile.name);
+            console.log('File Size:', firstFile.size, 'bytes');
+            console.log('File Type:', firstFile.type);
+            // You can perform further actions with the selected files here
+        } else {
+            console.log('No file selected.');
+        }
+    });
         
         // معاينة الفعالية في الوقت الحقيقي
         document.getElementById('eventForm').addEventListener('input', function() {
@@ -413,11 +435,14 @@ function createThumbnail($source_path, $thumb_path, $width, $height) {
             const category = document.getElementById('category').value || 'التصنيف';
             const location = document.getElementById('location').value || 'الموقع';
             const eventDate = document.getElementById('event_date').value || '2024-01-01T00:00';
-            const imageSrc = previewImage.src || '../assets/img/default-event.jpg';
             
             const previewHTML = `
                 <div class="card">
-                    <img src="${previewImage.src}" class="card-img-top" alt="${title}" style="height: 200px; object-fit: cover;">
+                    <img id="nijad" src="${s}" 
+                    class="card-img-top" 
+                    alt="${title}" 
+                    style="height: 200px; object-fit: cover;"
+                    onerror="this.src='../assets/img/default-event.jpg'">
                     <div class="card-body">
                         <h5 class="card-title">${title}</h5>
                         <p class="card-text">${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</p>

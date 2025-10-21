@@ -16,8 +16,19 @@ class UploadConfig {
             mkdir(self::THUMB_DIR, 0755, true);
         }
         
-        // إنشاء ملف .htaccess للحماية
-        $htaccess_content = "Order deny,allow\nDeny from all";
+        // إنشاء ملف .htaccess للحماية: امنع تنفيذ ملفات PHP لكن اسمح بالملفات الثابتة مثل الصور
+        $htaccess_content = <<<HT
+Options -Indexes
+<FilesMatch "\.(php|php5|phtml|phar)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+HT;
         @file_put_contents(self::UPLOAD_DIR . '.htaccess', $htaccess_content);
         @file_put_contents(self::THUMB_DIR . '.htaccess', $htaccess_content);
     }
@@ -83,24 +94,26 @@ function handleImageUpload($file) {
 }
 
 // دالة حذف الصورة
-function deleteEventImage($filename) {
-    if (empty($filename) || $filename === 'default-event.jpg') {
-        return true;
+if (!function_exists('deleteEventImage')) {
+    function deleteEventImage($filename) {
+        if (empty($filename) || $filename === 'default-event.jpg') {
+            return true;
+        }
+        
+        $image_path = UploadConfig::UPLOAD_DIR . $filename;
+        $thumb_path = UploadConfig::THUMB_DIR . $filename;
+        
+        $success = true;
+        
+        if (file_exists($image_path)) {
+            $success = $success && unlink($image_path);
+        }
+        
+        if (file_exists($thumb_path)) {
+            $success = $success && unlink($thumb_path);
+        }
+        
+        return $success;
     }
-    
-    $image_path = UploadConfig::UPLOAD_DIR . $filename;
-    $thumb_path = UploadConfig::THUMB_DIR . $filename;
-    
-    $success = true;
-    
-    if (file_exists($image_path)) {
-        $success = $success && unlink($image_path);
-    }
-    
-    if (file_exists($thumb_path)) {
-        $success = $success && unlink($thumb_path);
-    }
-    
-    return $success;
 }
 ?>

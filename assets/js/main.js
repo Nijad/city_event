@@ -93,10 +93,13 @@ function showThemeNotification(theme) {
   }`;
   notification.innerHTML = `
         <span>تم تفعيل الوضع ${theme === "dark" ? "الليلي" : "النهاري"}</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" style="position: relative;" data-bs-dismiss="alert"></button>
     `;
   notification.style.cssText = `
-        position: fixed;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
+        position: absolute;
         top: 80px;
         right: 20px;
         z-index: 1060;
@@ -512,8 +515,7 @@ function initializeContactForm() {
       submitButton.disabled = true;
       submitButton.innerHTML =
         '<span class="spinner-border spinner-border-sm"></span> جاري الإرسال...';
-
-      // إعادة التمكين بعد ثانية (في التطبيق الحقيقي سيكون بعد response)
+      // إعادة تعيين الزر بعد 2 ثانية (محاكاة الإرسال)
       setTimeout(() => {
         submitButton.disabled = false;
         submitButton.innerHTML = originalText;
@@ -616,7 +618,7 @@ function showAlert(message, type = "info") {
     `;
   alertDiv.innerHTML = `
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" style="position:relative;"></button>
     `;
 
   // إضافة التنبيه إلى الصفحة
@@ -660,7 +662,7 @@ function initializeEventSystem() {
   initializeBookingSystem();
   initializeEventActions();
   loadEventsData();
-  initializeFeaturedEventsCarousel(); // ← إضافة هذه السطر
+  initializeFeaturedEventsCarousel();
 }
 
 // دالة تهيئة سلايدر الفعاليات البارزة

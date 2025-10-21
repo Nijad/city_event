@@ -56,16 +56,16 @@ if (isset($_GET['delete'])) {
                 </div>
 
                 <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show">
+                    <div class="alert alert-success alert-dismissible fade show" style="display: inline-flex; justify-content: space-between; width: 100%; align-items: center;" role="alert">
                         <?= $_GET['success'] ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" style="position: relative;" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
                 <?php if (isset($_GET['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show">
+                    <div class="alert alert-danger alert-dismissible fade show" style="display: inline-flex; justify-content: space-between; width: 100%; align-items: center;" role="alert">
                         <?= $_GET['error'] ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" style="position: relative;" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 

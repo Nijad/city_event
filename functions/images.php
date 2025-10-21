@@ -49,25 +49,28 @@ function getEventThumbnail($filename, $admin = false) {
     return getEventImage($filename, $admin);
 }
 
-// دالة لحذف صورة الفعالية
-// function deleteEventImage($filename, $admin = false) {
-//     if (empty($filename) || $filename === 'default-event.jpg') {
-//         return true;
-//     }
-    
-//     $image_path = $admin? '../assets/uploads/events/' . $filename : 'assets/uploads/events/' . $filename;
-//     $thumb_path = $admin? '../assets/uploads/events/thumbs/' . $filename :'assets/uploads/events/thumbs/' . $filename;
-    
-//     $success = true;
-    
-//     if (file_exists($image_path)) {
-//         $success = $success && unlink($image_path);
-//     }
-    
-//     if (file_exists($thumb_path)) {
-//         $success = $success && unlink($thumb_path);
-//     }
-    
-//     return $success;
-// }
+    // دالة لحذف صورة الفعالية (تحذف الصورة والنسخة المصغرة)
+    if (!function_exists('deleteEventImage')) {
+    function deleteEventImage($filename) {
+        if (empty($filename) || $filename === 'default-event.jpg') {
+            return true;
+        }
+
+        $baseDir = dirname(__DIR__);
+        $fs_image_path = $baseDir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'events' . DIRECTORY_SEPARATOR . $filename;
+        $fs_thumb_path = $baseDir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'events' . DIRECTORY_SEPARATOR . 'thumbs' . DIRECTORY_SEPARATOR . $filename;
+
+        $success = true;
+
+        if (file_exists($fs_image_path)) {
+            $success = $success && @unlink($fs_image_path);
+        }
+
+        if (file_exists($fs_thumb_path)) {
+            $success = $success && @unlink($fs_thumb_path);
+        }
+
+        return $success;
+    }
+    }
 ?>

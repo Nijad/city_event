@@ -55,7 +55,7 @@ include 'functions/images.php';
                 foreach ($events as $event) {
                     echo "
                         <div class='col-md-4 mb-4 event-card' data-category='{$event['category']}' data-date='{$event['event_date']}'>
-                            <div class='card h-100'>
+                            <div class='card h-100 w-100'>
                             <img src='" . getEventImage($event['image']) . 
                             "' class='card-img-top' alt='" . 
                             htmlspecialchars($event['title'], ENT_QUOTES) . 

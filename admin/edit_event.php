@@ -29,8 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category = $_POST['category'] ?? '';
     $location = $_POST['location'] ?? '';
     $event_date = $_POST['event_date'] ?? '';
-    $current_image = $event['image'];
-    $new_image = $current_image;
+    // Keep the stored filename (from DB). Use getEventImage(...) only when rendering the URL.
+    $current_filename = $event['image'];
+    $new_image = $current_filename; // filename to store in DB
 
     // التحقق من البيانات الأساسية
     if (empty($title) || empty($description) || empty($category) || empty($location) || empty($event_date)) {
@@ -43,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new_image = $upload_result['filename'];
 
                 // حذف الصورة القديمة إذا لم تكن الصورة الافتراضية
-                if ($current_image !== 'default-event.jpg') {
-                    deleteEventImage($current_image);
+                if (!empty($current_filename) && $current_filename !== 'default-event.jpg' && $current_filename !== $new_image) {
+                    deleteEventImage($current_filename);
                 }
             } else {
                 $error_message = $upload_result['error'];
@@ -56,15 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("UPDATE events SET title = ?, description = ?, category = ?, location = ?, event_date = ?, image = ? WHERE id = ?");
                 $stmt->execute([$title, $description, $category, $location, $event_date, $new_image, $event_id]);
 
-                $success_message = 'تم تحديث الفعالية بنجاح!';
-
-                // تحديث بيانات الفعالية لعرضها في النموذج
-                $event['title'] = $title;
-                $event['description'] = $description;
-                $event['category'] = $category;
-                $event['location'] = $location;
-                $event['event_date'] = $event_date;
-                $event['image'] = $new_image;
+                // Redirect after successful update to prevent duplicate POST on refresh (Post/Redirect/Get)
+                header('Location: edit_event.php?id=' . $event_id . '&success=1');
+                exit;
             } catch (PDOException $e) {
                 $error_message = 'حدث خطأ أثناء تحديث الفعالية: ' . $e->getMessage();
             }
@@ -150,16 +145,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <?php if ($error_message): ?>
-                    <div class="alert alert-danger alert-dismissible fade show">
+                    <div class="alert alert-danger alert-dismissible fade show" style="display: inline-flex; justify-content: space-between; width: 100%; align-items: center;">
                         <?= $error_message ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" style="position:relative;" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($success_message): ?>
-                    <div class="alert alert-success alert-dismissible fade show">
+                    <div class="alert alert-success alert-dismissible fade show" style="display: inline-flex; justify-content: space-between; width: 100%; align-items: center;">
                         <?= $success_message ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" style="position:relative;" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
@@ -218,9 +213,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="form-label">الصورة الحالية</label>
                                 <div>
                                     <?php
-                                    $current_image_path = getEventImage($event['image']);
+                                    // Build a full absolute URL (scheme + host + path) for admin preview
+                                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                                    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                                    $webPath = getEventImage($event['image'], false); // returns web-relative path like 'assets/uploads/...'
+                                    $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\'); // e.g. /city_event
+                                    $current_image_url = $scheme . '://' . $host . $basePath . '/' . ltrim($webPath, '/');
                                     ?>
-                                    <img src="<?= $current_image_path ?>"
+                                    <img src="<?= $current_image_url ?>"
                                         alt="الصورة الحالية" class="current-image"
                                         onerror="this.src='../assets/img/default-event.jpg'">
                                     <br>
@@ -271,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card-body">
                         <div id="eventPreview">
                             <div class="card">
-                                <img src="<?= $current_image_path ?>" class="card-img-top" alt="<?= htmlspecialchars($event['title']) ?>"
+                                <img src="<?= $current_image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($event['title']) ?>"
                                     style="height: 200px; object-fit: cover;"
                                     onerror="this.src='../assets/img/default-event.jpg'">
                                 <div class="card-body">
@@ -361,6 +361,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // إزالة الصورة
         function removeImage() {
             fileInput.value = '';
+            // clear preview src so updatePreview falls back to the current server image
+            previewImage.src = '';
             imagePreview.style.display = 'none';
             uploadContent.innerHTML = `
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -377,12 +379,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const category = document.getElementById('category').value || '<?= htmlspecialchars($event['category']) ?>';
             const location = document.getElementById('location').value || '<?= htmlspecialchars($event['location']) ?>';
             const eventDate = document.getElementById('event_date').value || '<?= date('Y-m-d\TH:i', strtotime($event['event_date'])) ?>';
-            const imageSrc = previewImage.src || '<?= $current_image_path ?>';
+            const imageSrc = '<?= $current_image_url ?>' || previewImage.src;
 
             const previewHTML = `
                 <div class="card">
                     <img src="${imageSrc}" class="card-img-top" alt="${title}" style="height: 200px; object-fit: cover;"
-                         onerror="this.src='../assets/img/default-event.jpg'">
+                        onerror="this.src='../assets/img/default-event.jpg'">
                     <div class="card-body">
                         <h5 class="card-title">${title}</h5>
                         <p class="card-text">${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</p>
